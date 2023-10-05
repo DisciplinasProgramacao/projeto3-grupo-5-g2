@@ -12,8 +12,12 @@ public class Estacionamento {
 		
 	}
 
+
 	public void addVeiculo(Veiculo veiculo, String idCli) {
 		
+	}
+	public static void getVeiculo(){
+		return veiculo;
 	}
 
 	public void addCliente(Cliente cliente) {
