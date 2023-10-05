@@ -5,20 +5,35 @@ public class Cliente {
 	private String nome;
 	private String id;
 	private Veiculo[] veiculos;
-
-	public Cliente(String nome, String id) {
-		
+	private double totalArrecadado;
+	private int usos;
+	
+	public getArrecadadoTotal(){
+		return totalArrecadado;
 	}
 
-	public void addVeiculo(Veiculo veiculo) {
+	public getQtdVeiculos {
+		return veiculos;
+	}
+
+	public getTotalDeUsos {
+		return usos; 	
+	}
+	
+	public Cliente(String nome, String id) {
+		this.nome = nome;
+		this.id = id;
+	}
 		
+	public void addVeiculo(Veiculo veiculo) {
+		veiculos++;
 	}
 
 	public Veiculo possuiVeiculo(String placa) {
         return null;
     }
 
-	public int totalDeUsos() {
+	public int totalDeUsos(int usos) {
         return 0;
     }
 
