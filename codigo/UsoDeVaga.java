@@ -1,4 +1,4 @@
-
+import java.time.LocalDateTime;
 
 public class UsoDeVaga {
 
@@ -15,11 +15,11 @@ public class UsoDeVaga {
 	}
 
 	public double sair() {
-		
-	}
+        return 0;
+    }
 
 	public double valorPago() {
-		
-	}
+        return 0;
+    }
 
 }

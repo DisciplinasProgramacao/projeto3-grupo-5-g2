@@ -29,23 +29,23 @@ public class Estacionamento {
 	}
 
 	public double sair(String placa) {
-		
-	}
+        return 0;
+    }
 
 	public double totalArrecadado() {
-		
-	}
+        return 0;
+    }
 
 	public double arrecadacaoNoMes(int mes) {
-		
-	}
+        return 0;
+    }
 
 	public double valorMedioPorUso() {
-		
-	}
+        return 0;
+    }
 
 	public String top5Clientes(int mes) {
-		
-	}
+        return null;
+    }
 
 }

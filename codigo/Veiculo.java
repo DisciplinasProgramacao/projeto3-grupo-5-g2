@@ -14,19 +14,19 @@ public class Veiculo {
 	}
 
 	public double sair() {
-		
-	}
+        return 0;
+    }
 
 	public double totalArrecadado() {
-		
-	}
+        return 0;
+    }
 
 	public double arrecadadoNoMes(int mes) {
-		
-	}
+        return 0;
+    }
 
 	public int totalDeUsos() {
-		
-	}
+        return 0;
+    }
 
 }

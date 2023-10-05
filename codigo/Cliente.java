@@ -15,23 +15,23 @@ public class Cliente {
 	}
 
 	public Veiculo possuiVeiculo(String placa) {
-		
-	}
+        return null;
+    }
 
 	public int totalDeUsos() {
-		
-	}
+        return 0;
+    }
 
 	public double arrecadadoPorVeiculo(String placa) {
-		
-	}
+        return 0;
+    }
 
 	public double arrecadadoTotal() {
-		
-	}
+        return 0;
+    }
 
 	public double arrecadadoNoMes(int mes) {
-		
-	}
+        return 0;
+    }
 
 }
