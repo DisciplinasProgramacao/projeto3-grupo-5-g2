@@ -1,82 +1,120 @@
+import java.time.LocalDateTime;
 
-
+/**
+ * Classe que representa uma vaga de estacionamento.
+ */
 public class Vaga {
-
     private String id;
-    private boolean disponivel;
+    private Veiculo veiculo;
+    private LocalDateTime horaEntrada; // Hora de entrada do veículo
 
     /**
-     * Construtor da classe Vaga.
-     * @param fila Número da fila da vaga.
-     * @param numero Número da vaga na fila.
+     * Construtor para criar uma nova vaga de estacionamento.
+     *
+     * @param id Identificador único da vaga.
      */
-    public Vaga(char fila, int numero) {
-        this.id = "Vaga " + fila + numero;
-        this.disponivel = true;
+    public Vaga(String id) {
+        this.id = id;
+        this.veiculo = null;
+        this.horaEntrada = null; // Inicialmente, a hora de entrada é nula
     }
 
     /**
-     * Obtém o identificador da vaga.
-     * @return O identificador da vaga.
+     * Obtém a hora de entrada do veículo na vaga.
+     *
+     * @return Hora de entrada do veículo.
+     */
+    public LocalDateTime getHoraEntrada() {
+        return horaEntrada;
+    }
+
+    /**
+     * Obtém o identificador único da vaga.
+     *
+     * @return Identificador único da vaga.
      */
     public String getId() {
         return id;
     }
 
-   /**
-     * Define o identificador alfanumérico da vaga.
-     * 
-     * @param id O novo identificador alfanumérico da vaga no formato XY.
-     */ 
-    public void setId(String id) {
-        this.id = id;
+    /**
+     * Obtém o veículo estacionado na vaga.
+     *
+     * @return Veículo estacionado na vaga, ou null se a vaga estiver vazia.
+     */
+    public Veiculo getVeiculo() {
+        return veiculo;
     }
 
     /**
-     * Verifica se a vaga está disponível.
-     * @return true se a vaga estiver disponível, false caso contrário.
+     * Define o veículo que está estacionando na vaga.
+     *
+     * @param veiculo Veículo a ser estacionado.
+     */
+    public void setVeiculo(Veiculo veiculo) {
+        this.veiculo = veiculo;
+    }
+
+    /**
+     * Verifica se a vaga está disponível (não ocupada por um veículo).
+     *
+     * @return true se a vaga estiver disponível, caso contrário, false.
      */
     public boolean isDisponivel() {
-        return disponivel;
+        return veiculo == null;
     }
 
     /**
-     * Define o status de disponibilidade da vaga.
-     * 
-     * @param disponivel true se a vaga estiver disponível, false caso contrário.
+     * Registra o momento em que um veículo estaciona na vaga.
      */
-    public void setDisponivel(boolean disponivel) {
-        this.disponivel = disponivel;
+    public void estacionar() {
+        // Defina a hora de entrada quando um veículo for estacionado
+        horaEntrada = LocalDateTime.now();
     }
 
     /**
-     * Estaciona um veículo na vaga, marcando-a como ocupada.
-     * @return true se o veículo foi estacionado com sucesso, false caso a vaga já esteja ocupada.
+     * Remove o veículo da vaga e calcula o tempo de estacionamento.
+     *
+     * @return O tempo de estacionamento (em horas).
      */
-    public boolean estacionar() {
-        if (disponivel) {
-            disponivel = false;
-            System.out.println("Veículo estacionado na " + id);
-            return true;
+    public double sair() {
+        if (veiculo != null) {
+            double tempoEstacionado = calcularTempoEstacionado();
+            this.veiculo = null;
+            return tempoEstacionado;
         } else {
-            System.out.println("Vaga ocupada, não é possível estacionar.");
-            return false;
+            return 0.0;
         }
     }
 
     /**
-     * Libera a vaga, marcando-a como disponível.
-     * @return true se o veículo saiu com sucesso, false caso a vaga já esteja vazia.
+     * Calcula o tempo de estacionamento com base na hora de entrada e saída.
+     *
+     * @return O tempo de estacionamento (em horas).
      */
-    public boolean sair() {
-        if (!disponivel) {
-            disponivel = true;
-            System.out.println("Veículo saiu da " + id);
-            return true;
+    public double calcularTempoEstacionado() {
+        if (horaEntrada != null) {
+            LocalDateTime horaSaida = LocalDateTime.now();
+            // Calcule a diferença entre a hora de entrada e a hora de saída
+            // para obter o tempo estacionado
+            // Você pode personalizar a lógica de cálculo conforme necessário
+            return calcularDiferencaHoras(horaEntrada, horaSaida);
         } else {
-            System.out.println("Vaga já está vazia, nenhum veículo para sair.");
-            return false;
+            return 0.0;
         }
     }
 
+    /**
+     * Calcula a diferença de horas entre duas datas.
+     *
+     * @param entrada Hora de entrada.
+     * @param saida   Hora de saída.
+     * @return A diferença de horas entre a hora de entrada e a hora de saída.
+     */
+    private double calcularDiferencaHoras(LocalDateTime entrada, LocalDateTime saida) {
+        // Cálculo da diferença de horas personalizado
+        // Esta implementação retorna a diferença em minutos para fins de exemplo
+        long minutos = java.time.Duration.between(entrada, saida).toMinutes();
+        return minutos / 60.0; // Converte minutos para horas
+    }
 }
