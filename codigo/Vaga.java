@@ -5,8 +5,8 @@ public class Vaga {
     private String id;
     private boolean disponivel;
 
-    public Vaga(int fila, int numero) {
-        this.id = "F" + fila + "-N" + numero;
+    public Vaga(char fila, int numero) {
+        this.id = "Vaga " + fila + numero;
         this.disponivel = true;
     }
 
@@ -29,7 +29,7 @@ public class Vaga {
     public boolean estacionar() {
         if (disponivel) {
             disponivel = false;
-            System.out.println("Veículo estacionado na vaga " + id);
+            System.out.println("Veículo estacionado na " + id);
             return true;
         } else {
             System.out.println("Vaga ocupada, não é possível estacionar.");
@@ -40,7 +40,7 @@ public class Vaga {
     public boolean sair() {
         if (!disponivel) {
             disponivel = true;
-            System.out.println("Veículo saiu da vaga " + id);
+            System.out.println("Veículo saiu da " + id);
             return true;
         } else {
             System.out.println("Vaga já está vazia, nenhum veículo para sair.");
