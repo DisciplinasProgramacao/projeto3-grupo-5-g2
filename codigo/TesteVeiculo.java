@@ -1,16 +1,34 @@
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-public class TesteVeiculo {
-  
-    public static void main(String[] args) {
-      
+public class VeiculoTest {
+
+    @Test
+    public void testEstacionarESair() {
         Veiculo veiculo = new Veiculo("ABC123");
         Vaga vaga = new Vaga('A', 1);
         
-        veiculo.estacionar(vaga); // Veículo com placa ABC123 estacionado na vaga A1
-        veiculo.sair(); // Veículo com placa ABC123 saiu da vaga. Valor pago: R$10.0
+        veiculo.estacionar(vaga);
+        assertFalse(vaga.isDisponivel()); // Verifica se a vaga foi marcada como ocupada após estacionar
         
-        System.out.println("Total arrecadado: R$" + veiculo.totalArrecadado());
-        System.out.println("Arrecadado no mês 10: R$" + veiculo.arrecadadoNoMes(10));
-        System.out.println("Total de usos: " + veiculo.totalDeUsos());
+        double valorPago = veiculo.sair();
+        assertTrue(vaga.isDisponivel()); // Verifica se a vaga foi marcada como disponível após sair
+        assertEquals(10.0, valorPago, 0.01); // Verifica se o valor pago é correto (considerando um valor de exemplo)
     }
+
+    @Test
+    public void testTotalArrecadado() {
+        Veiculo veiculo = new Veiculo("ABC123");
+        Vaga vaga1 = new Vaga('A', 1);
+        Vaga vaga2 = new Vaga('A', 2);
+
+        veiculo.estacionar(vaga1);
+        veiculo.estacionar(vaga2);
+        veiculo.sair();
+        veiculo.sair();
+
+        assertEquals(20.0, veiculo.totalArrecadado(), 0.01); // Verifica se o total arrecadado é correto
+    }
+
+    // Adicione mais métodos de teste conforme necessário
 }
