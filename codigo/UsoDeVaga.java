@@ -1,4 +1,8 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 public class UsoDeVaga {
 
@@ -9,49 +13,39 @@ public class UsoDeVaga {
 	private LocalDateTime entrada;
 	private LocalDateTime saida;
 	private double valorPago;
+	private List<Servicos> servicosContratados;
 
 	public UsoDeVaga(Vaga vaga) {
 		this.vaga = vaga;
+		this.entrada = LocalDateTime.now();
+		this.servicosContratados = new ArrayList<Servicos>();
     }
 
 	public double sair() {
-        return 0;
+		return this.sair(LocalDateTime.now());
+	}
+
+	public double sair(LocalDateTime horarioSaida) {
+		this.saida = horarioSaida;
+		long totalMinutos = ChronoUnit.MINUTES.between(this.entrada, this.saida);
+		double totalHoras = (double) totalMinutos /60;
+
+		double valorTotal = 0d;
+		for(Servicos servico:this.servicosContratados){
+			valorTotal += servico.calcularCustoServico(totalHoras);
+		}
+
+		valorTotal += Math.min((totalHoras/FRACAO_USO) * VALOR_FRACAO, VALOR_MAXIMO);
+		this.valorPago = valorTotal;
+		return valorTotal;
     }
 
 	public double valorPago() {
         return valorPago;
     }
-	public Vaga getVaga() {
-		return vaga;
-	}
 
-	public void setVaga(Vaga vaga) {
-		this.vaga = vaga;
+	public void contratarServico(Servicos servico){
+		this.servicosContratados.add(servico);
 	}
-
-	public LocalDateTime getEntrada() {
-		return entrada;
-	}
-
-	public void setEntrada(LocalDateTime entrada) {
-		this.entrada = entrada;
-	}
-
-	public LocalDateTime getSaida() {
-		return saida;
-	}
-
-	public void setSaida(LocalDateTime saida) {
-		this.saida = saida;
-	}
-
-	public double getValorPago() {
-		return valorPago;
-	}
-
-	public void setValorPago(double valorPago) {
-		this.valorPago = valorPago;
-	}
-}
 
 }

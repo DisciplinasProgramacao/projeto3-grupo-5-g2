@@ -1,40 +1,45 @@
-
+import java.util.ArrayList;
+import java.util.List;
 
 public class Veiculo {
 
 	private String placa;
-	private UsoDeVaga[] usos;
+	private List<UsoDeVaga> usos;
+	private UsoDeVaga usoDeVagaAtual;
 
-
-	public String getPlaca(String placa){
-		return placa;
-	}
-
-	public void setPlaca(String placa){
-		this.placa = placa;
-	}
-
-	public UsoDeVaga[] getVaga(UsoDeVaga[] usos){
-		return usos;
-	}
-
-	public void setVaga(UsoDeVaga[] usos){
-		this.usos = usos;
-	}
 	public Veiculo(String placa) {
-		
+		this.placa = placa;
+		this.usos = new ArrayList<>();
+		this.usoDeVagaAtual = null;
 	}
 
 	public void estacionar(Vaga vaga) {
+		vaga.estacionar();
+		UsoDeVaga usoVaga = new UsoDeVaga(vaga);
+		this.usos.add(usoVaga);
+	}
 
+	public void contratarServico(Servicos servico){
+		this.usoDeVagaAtual.contratarServico(servico);
 	}
 
 	public double sair() {
-        return 0;
+		if(usoDeVagaAtual == null){
+			return 0;
+		}else{
+			double totalAPagar =  usoDeVagaAtual.sair();
+        	usoDeVagaAtual = null;
+			return  totalAPagar;
+		}
     }
 
 	public double totalArrecadado() {
-        return 0;
+        double totalArrecadado = 0d;
+		for(UsoDeVaga usoVaga:this.usos){
+			totalArrecadado += usoVaga.valorPago();
+		}
+
+		return totalArrecadado;
     }
 
 	public double arrecadadoNoMes(int mes) {
