@@ -1,18 +1,25 @@
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Representa o sistema de estacionamento da Xulambs Parking.
+ */
 public class SistemaEstacionamento {
     private Cliente cliente; // Mantenha a instância de Cliente
     private Estacionamento estacionamento; // Mantenha a instância de Estacionamento
 
+    /**
+     * Construtor para inicializar o Sistema de Estacionamento.
+     * Inicializa as instâncias de Cliente e Estacionamento conforme necessário.
+     */
     public SistemaEstacionamento() {
-        // Inicialize as instâncias de Cliente e Estacionamento conforme necessário
         cliente = new Cliente("Nome do Cliente", "ID do Cliente"); // Isso pode variar dependendo da estrutura do seu sistema
         estacionamento = new Estacionamento("Nome do Estacionamento", 3, 5); // Isso pode variar dependendo da estrutura do seu sistema
     }
 
-    // Resto do seu código...
-
+    /**
+     * Inicializa e executa o sistema de estacionamento.
+     */
     public void iniciarSistema() {
         Scanner scanner = new Scanner(System.in);
 
@@ -97,7 +104,7 @@ public class SistemaEstacionamento {
                     System.out.println("Informe a placa do veículo que deseja sair:");
                     String placaSaida = scanner.next();
 
-                   clienteEncontrado = estacionamento.encontrarClientePorPlaca(placaSaida);
+                    clienteEncontrado = estacionamento.encontrarClientePorPlaca(placaSaida);
 
                     if (clienteEncontrado != null) {
                         Veiculo veiculoDoCliente = clienteEncontrado.possuiVeiculo(placaSaida);
@@ -133,7 +140,6 @@ public class SistemaEstacionamento {
                     System.exit(0); // Encerra o programa
                     break;
             }
-
         }
     }
 }
