@@ -1,53 +1,75 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class Veiculo {
-
 	private String placa;
 	private List<UsoDeVaga> usos;
-	private UsoDeVaga usoDeVagaAtual;
+	private LocalDateTime horaEntrada;
+	private Cliente cliente;
 
 	public Veiculo(String placa) {
 		this.placa = placa;
 		this.usos = new ArrayList<>();
-		this.usoDeVagaAtual = null;
 	}
 
-	public void estacionar(Vaga vaga) {
-		vaga.estacionar();
-		UsoDeVaga usoVaga = new UsoDeVaga(vaga);
-		this.usos.add(usoVaga);
+	public Cliente getCliente() {
+		return cliente;
 	}
 
-	public void contratarServico(Servicos servico){
-		this.usoDeVagaAtual.contratarServico(servico);
+	public String getPlaca() {
+		return placa;
 	}
 
-	public double sair() {
-		if(usoDeVagaAtual == null){
-			return 0;
-		}else{
-			double totalAPagar =  usoDeVagaAtual.sair();
-        	usoDeVagaAtual = null;
-			return  totalAPagar;
+	public LocalDateTime getHoraEntrada() {
+		return horaEntrada; // Obtenha a hora de entrada do veículo
+	}
+
+	public void estacionar(Vaga vaga, LocalDateTime entrada) {
+		UsoDeVaga uso = new UsoDeVaga(vaga, this, entrada);
+		usos.add(uso);
+		vaga.estacionar(this, uso);
+	}
+
+	public double sair(Vaga vaga, LocalDateTime saida) {
+		UsoDeVaga uso = encontrarUso(vaga);
+		if (uso != null) {
+			double valorPago = uso.sair(saida);
+			usos.remove(uso);
+			return valorPago;
 		}
-    }
+		return 0.0; // Veículo não estava estacionado nesta vaga.
+	}
+
+	private UsoDeVaga encontrarUso(Vaga vaga) {
+		for (UsoDeVaga uso : usos) {
+			if (Objects.equals(uso.getVaga(), vaga)) {
+				return uso;
+			}
+		}
+		return null;
+	}
 
 	public double totalArrecadado() {
-        double totalArrecadado = 0d;
-		for(UsoDeVaga usoVaga:this.usos){
-			totalArrecadado += usoVaga.valorPago();
+		double total = 0.0;
+		for (UsoDeVaga uso : usos) {
+			total += uso.getValorPago();
 		}
-
-		return totalArrecadado;
-    }
+		return total;
+	}
 
 	public double arrecadadoNoMes(int mes) {
-        return 0;
-    }
+		double total = 0.0;
+		for (UsoDeVaga uso : usos) {
+			if (uso.getEntrada().getMonthValue() == mes) {
+				total += uso.getValorPago();
+			}
+		}
+		return total;
+	}
 
 	public int totalDeUsos() {
-        return 0;
-    }
-
+		return usos.size();
+	}
 }
