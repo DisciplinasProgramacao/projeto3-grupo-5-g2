@@ -5,14 +5,15 @@ import java.time.LocalDateTime;
  * Classe que representa o uso de uma vaga de estacionamento por um veículo.
  */
 public class UsoDeVaga {
-    private static final double FRACAO_USO = 0.25;
-    private static final double VALOR_FRACAO = 4.0;
-    private static final double VALOR_MAXIMO = 50.0;
 
-    private Vaga vaga;
-    private LocalDateTime entrada;
-    private LocalDateTime saida;
-    private double valorPago;
+	private static final double FRACAO_USO = 0.25;
+	private static final double VALOR_FRACAO = 4.0;
+	private static final double VALOR_MAXIMO = 50.0;
+	private Vaga vaga;
+	private LocalDateTime entrada;
+	private LocalDateTime saida;
+	private double valorPago;
+	private List<Servicos> servicosContratados;
 
     /**
      * Construtor para criar um novo uso de vaga.
