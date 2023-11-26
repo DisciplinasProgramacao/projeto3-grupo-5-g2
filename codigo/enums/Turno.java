@@ -1,3 +1,5 @@
+package enums;
+
 import java.time.LocalTime;
 
 public enum Turno {

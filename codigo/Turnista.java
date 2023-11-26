@@ -1,3 +1,5 @@
+import enums.Turno;
+
 import java.time.LocalTime;
 
 public class Turnista extends Horista{

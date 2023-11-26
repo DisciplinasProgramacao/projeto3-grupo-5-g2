@@ -3,7 +3,7 @@ package enums;
 public enum Cliente {
 
     HORISTA ("Horista", 0, 0.0),
-    TURNO ("Turno", 200.0, 0),
+    TURNO ("enums.Turno", 200.0, 0),
     MENSALISTA ("Mensalista", 500.0, 0),;
 
     private String nome;
