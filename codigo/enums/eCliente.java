@@ -1,6 +1,6 @@
 package enums;
 
-public enum Cliente {
+public enum eCliente {
 
     HORISTA ("Horista", 0, 0.0),
     TURNO ("Turno", 200.0, 0),
