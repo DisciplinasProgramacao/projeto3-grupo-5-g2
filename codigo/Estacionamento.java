@@ -20,9 +20,9 @@ public class Estacionamento {
     /**
      * Construtor para inicializar o estacionamento.
      *
-     * @param nome           Nome do estacionamento.
-     * @param fileiras       Número de fileiras de vagas.
-     * @param vagasPorFila   Número de vagas por fileira.
+     * @param nome         Nome do estacionamento.
+     * @param fileiras     Número de fileiras de vagas.
+     * @param vagasPorFila Número de vagas por fileira.
      */
     public Estacionamento(String nome, int fileiras, int vagasPorFila) {
         this.nome = nome;
@@ -57,7 +57,8 @@ public class Estacionamento {
     }
 
     /**
-     * Gera as vagas do estacionamento com base no número de fileiras e vagas por fileira.
+     * Gera as vagas do estacionamento com base no número de fileiras e vagas por
+     * fileira.
      */
     private void gerarVagas() {
         int totalVagas = quantFileiras * vagasPorFileira;
@@ -112,8 +113,8 @@ public class Estacionamento {
     /**
      * Remove um veículo do estacionamento.
      *
-     * @param placa      Placa do veículo a ser removido.
-     * @param horaSaida  Hora de saída do veículo.
+     * @param placa     Placa do veículo a ser removido.
+     * @param horaSaida Hora de saída do veículo.
      */
     public void sair(String placa, LocalDateTime horaSaida) {
         Vaga vagaDoVeiculo = null;
@@ -136,7 +137,8 @@ public class Estacionamento {
 
             Cliente cliente = getClienteByPlaca(placa);
             if (cliente != null) {
-                EstacionamentoRegistro registro = new EstacionamentoRegistro(this, vagaDoVeiculo, vagaDoVeiculo.getVeiculo(), valorPago, horasEstacionado);
+                EstacionamentoRegistro registro = new EstacionamentoRegistro(this, vagaDoVeiculo,
+                        vagaDoVeiculo.getVeiculo(), valorPago, horasEstacionado);
                 registros.add(registro);
             }
 
@@ -266,4 +268,24 @@ public class Estacionamento {
         Duration duracao = Duration.between(entrada, saida);
         return (int) duracao.toHours();
     }
+
+    
+    /**
+     * Gera um histórico detalhado para um cliente específico.
+     *
+     * @param id Identificação do cliente.
+     * @return Histórico detalhado do cliente.
+     */
+    public String historicoCliente(String id) {
+        Cliente busca = new Cliente(id,id);
+        String historico = "";
+        
+        for (Cliente cliente : clientes.values()) {
+            if (busca.equals(cliente)) {
+                historico = cliente.historicoCliente();
+            }
+        }
+        return historico;
+    }
 }
+    
