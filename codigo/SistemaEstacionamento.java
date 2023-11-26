@@ -13,8 +13,10 @@ public class SistemaEstacionamento {
      * Inicializa as instâncias de Cliente e Estacionamento conforme necessário.
      */
     public SistemaEstacionamento() {
-        cliente = new Cliente("Nome do Cliente", "ID do Cliente"); // Isso pode variar dependendo da estrutura do seu sistema
-        estacionamento = new Estacionamento("Nome do Estacionamento", 3, 5); // Isso pode variar dependendo da estrutura do seu sistema
+        cliente = new Cliente("Nome do Cliente", "ID do Cliente"); // Isso pode variar dependendo da estrutura do seu
+                                                                   // sistema
+        estacionamento = new Estacionamento("Nome do Estacionamento", 3, 5); // Isso pode variar dependendo da estrutura
+                                                                             // do seu sistema
     }
 
     /**
@@ -26,15 +28,70 @@ public class SistemaEstacionamento {
         while (true) {
             System.out.println("Bem-vindo ao Sistema de Estacionamento da Xulambs Parking!");
             System.out.println("Escolha uma opção:");
-            System.out.println("1. Estacionar veículo");
-            System.out.println("2. Contratar serviço adicional");
-            System.out.println("3. Sair do estacionamento");
-            System.out.println("4. Encerrar o sistema");
+            System.out.println("1. Cadastrar Cliente");
+            System.out.println("2. Cadastrar veículo");
+            System.out.println("3. Estacionar veículo");
+            System.out.println("4. Contratar serviço adicional");
+            System.out.println("5. Sair do estacionamento");
+            System.out.println("6. Encerrar o sistema");
 
             int opcao = scanner.nextInt();
 
             switch (opcao) {
+
                 case 1:
+                    // Opção para cadastrar cliente
+                    System.out.println("------ Cadastro de Cliente ------");
+                    System.out.print("Nome do cliente: ");
+                    String nome = scanner.nextLine();
+                    System.out.print("ID do cliente: ");
+                    String id = scanner.nextLine();
+
+                    System.out.println("Selecione o tipo de cliente:");
+                    for (eCliente tipo : eCliente.values()) {
+                        System.out.println((tipo.ordinal() + 1) + ". " + tipo.getNome());
+                    }
+                    int escolhaTipo = scanner.nextInt();
+                    scanner.nextLine();
+                    eCliente tipoCliente = null;
+                    if (escolhaTipo > 0 && escolhaTipo <= eCliente.values().length) {
+                        tipoCliente = eCliente.values()[escolhaTipo - 1];
+                    }
+
+                    if (tipoCliente == eCliente.TURNO) {
+                        System.out.println("Selecione o turno do cliente:");
+                        for (eTurnos turno : eTurnos.values()) {
+                            System.out.println((turno.ordinal() + 1) + ". " + turno.getNome());
+                        }
+                        int escolhaTurno = scanner.nextInt();
+                        scanner.nextLine();
+                        eTurnos turnoCliente = null;
+                        if (escolhaTurno > 0 && escolhaTurno <= eTurnos.values().length) {
+                            turnoCliente = eTurnos.values()[escolhaTurno - 1];
+                        } else {
+                            System.out.println("Escolha inválida para o turno. O cliente será registrado sem turno.");
+                        }
+
+                        Cliente cliente = new Cliente(nome, id, tipoCliente, turnoCliente);
+                        estacionamento.addCliente(cliente);
+                    } else {
+                        Cliente cliente = new Cliente(nome, id, tipoCliente);
+                        estacionamento.addCliente(cliente);
+                    }
+                    break;
+
+                case 2:
+                    // Opção para cadastrar veículo
+                    System.out.println("------ Cadastro de Veículo ------");
+                    System.out.print("Placa do Veiculo: ");
+                    String placa = scanner.nextLine();
+                    Veiculo veiculo = new Veiculo(placa);
+                    System.out.print("ID DO CLIENTE: ");
+                    String id = scanner.nextLine();
+                    estacionamento.addVeiculo(veiculo, id);
+                    break;
+
+                case 3:
                     // Opção para estacionar veículo
                     System.out.println("Informe a placa do veículo:");
                     String placa = scanner.next();
@@ -45,19 +102,21 @@ public class SistemaEstacionamento {
                     Vaga vaga = estacionamento.encontrarVagaPorId(idVaga);
 
                     if (clienteEncontrado != null && vaga != null) {
-                        Veiculo veiculoDoCliente = clienteEncontrado.possuiVeiculo(placa); // Procure o veículo no cliente
+                        Veiculo veiculoDoCliente = clienteEncontrado.possuiVeiculo(placa); // Procure o veículo no
+                                                                                           // cliente
                         if (veiculoDoCliente != null) {
                             veiculoDoCliente.estacionar(vaga); // Estacione o veículo na vaga
                             System.out.println("Veículo estacionado com sucesso na vaga " + vaga.getId());
                         } else {
-                            System.out.println("Veículo não pertence a esse cliente. Verifique os dados e tente novamente.");
+                            System.out.println(
+                                    "Veículo não pertence a esse cliente. Verifique os dados e tente novamente.");
                         }
                     } else {
                         System.out.println("Veículo ou vaga não encontrados. Verifique os dados e tente novamente.");
                     }
                     break;
 
-                case 2:
+                case 4:
                     // Opção para contratar serviço adicional
                     System.out.println("Informe a placa do veículo:");
                     placa = scanner.next();
@@ -93,14 +152,16 @@ public class SistemaEstacionamento {
                                     break;
                             }
                         } else {
-                            System.out.println("Veículo não pertence a esse cliente. Verifique os dados e tente novamente.");
+                            System.out.println(
+                                    "Veículo não pertence a esse cliente. Verifique os dados e tente novamente.");
                         }
                     } else {
                         System.out.println("Veículo não encontrado. Verifique os dados e tente novamente.");
                     }
                     break;
 
-                case 3:
+                case 5:
+                    // Opção para sair da vaga
                     System.out.println("Informe a placa do veículo que deseja sair:");
                     String placaSaida = scanner.next();
 
@@ -110,7 +171,8 @@ public class SistemaEstacionamento {
                         Veiculo veiculoDoCliente = clienteEncontrado.possuiVeiculo(placaSaida);
 
                         if (veiculoDoCliente != null) {
-                            List<Cliente> listaClientes = estacionamento.getClientes(); // Acessa a lista de clientes do estacionamento
+                            List<Cliente> listaClientes = estacionamento.getClientes(); // Acessa a lista de clientes do
+                                                                                        // estacionamento
                             for (Cliente c : listaClientes) {
                                 if (c.equals(clienteEncontrado)) {
                                     c.removerVeiculo(veiculoDoCliente);
@@ -127,14 +189,15 @@ public class SistemaEstacionamento {
                                 System.out.println("Vaga do veículo não encontrada.");
                             }
                         } else {
-                            System.out.println("Veículo não pertence a esse cliente. Verifique os dados e tente novamente.");
+                            System.out.println(
+                                    "Veículo não pertence a esse cliente. Verifique os dados e tente novamente.");
                         }
                     } else {
                         System.out.println("Veículo não encontrado. Verifique os dados e tente novamente.");
                     }
                     break;
 
-                case 4:
+                case 6:
                     System.out.println("Encerrando o sistema de estacionamento.");
                     scanner.close(); // Fecha o scanner
                     System.exit(0); // Encerra o programa
