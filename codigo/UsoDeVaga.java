@@ -1,5 +1,6 @@
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Classe que representa o uso de uma vaga de estacionamento por um veículo.
