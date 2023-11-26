@@ -36,15 +36,21 @@ public class UsoDeVaga {
         return entrada;
     }
 
+
+    public double sair() {
+        return this.sair(LocalDateTime.now());
+    }
     /**
      * Registra a saída do veículo da vaga e calcula o valor a ser pago.
      *
+     * @param dataSaida Data da saída (optional)
      * @return O valor a ser pago pelo uso da vaga.
      */
-    public double sair() {
+    public double sair(LocalDateTime dataSaida) {
         if (saida == null) {
             // O veículo ainda não saiu, portanto, defina a saída como a data e hora atual.
-            this.saida = LocalDateTime.now();
+            this.saida = dataSaida;
+
             Duration duracao = Duration.between(entrada, saida);
             long minutosEstacionado = duracao.toMinutes();
             double valorAPagar = calcularValor(minutosEstacionado);
@@ -60,16 +66,5 @@ public class UsoDeVaga {
      */
     public double valorPago() {
         return valorPago;
-    }
-
-    /**
-     * Calcula o valor a ser pago com base no tempo de estacionamento.
-     *
-     * @param minutosEstacionado Tempo de estacionamento em minutos.
-     * @return O valor a ser pago pelo uso da vaga.
-     */
-    private double calcularValor(long minutosEstacionado) {
-        double valor = minutosEstacionado * FRACAO_USO * VALOR_FRACAO;
-        return valor;
     }
 }

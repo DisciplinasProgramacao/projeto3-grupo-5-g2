@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -32,41 +33,27 @@ public class Veiculo {
 		vaga.estacionar(this, uso);
 	}
 
-	public double sair(Vaga vaga, LocalDateTime saida) {
-		UsoDeVaga uso = encontrarUso(vaga);
+	public double sair(LocalDateTime saida) {
+		UsoDeVaga uso = encontrarUsoMaisRecente();
 		if (uso != null) {
 			double valorPago = uso.sair(saida);
 			usos.remove(uso);
 			return valorPago;
+		}else{
+			return 0.0; // Veículo não estava estacionado nesta vaga.
 		}
-		return 0.0; // Veículo não estava estacionado nesta vaga.
 	}
 
-	private UsoDeVaga encontrarUso(Vaga vaga) {
-		for (UsoDeVaga uso : usos) {
-			if (Objects.equals(uso.getVaga(), vaga)) {
-				return uso;
-			}
-		}
-		return null;
+	private UsoDeVaga encontrarUsoMaisRecente() {
+		return usos.stream().min(Comparator.comparing(UsoDeVaga::getEntrada)).orElse(null);
 	}
 
 	public double totalArrecadado() {
-		double total = 0.0;
-		for (UsoDeVaga uso : usos) {
-			total += uso.getValorPago();
-		}
-		return total;
+		return 0d;
 	}
 
 	public double arrecadadoNoMes(int mes) {
-		double total = 0.0;
-		for (UsoDeVaga uso : usos) {
-			if (uso.getEntrada().getMonthValue() == mes) {
-				total += uso.getValorPago();
-			}
-		}
-		return total;
+		return 0d;
 	}
 
 	public int totalDeUsos() {

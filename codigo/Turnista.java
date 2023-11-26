@@ -7,6 +7,12 @@ public class Turnista extends Horista{
         this.turno = turno;
     }
 
+    public Turnista() {}
+
+    public void setTurno(Turno turno) {
+        this.turno = turno;
+    }
+
     @Override
     public double sair(UsoDeVaga usoVaga, LocalTime horario){
         if(this.turno.verificarDentroTurno(horario)){

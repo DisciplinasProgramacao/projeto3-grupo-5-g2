@@ -1,7 +1,7 @@
 public class Vaga {
     private String id;
     private boolean disponivel;
-    private String filas = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String FILAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     /**
      * Construtor da classe Vaga.
@@ -9,15 +9,10 @@ public class Vaga {
      * @param fila   A letra da fila da vaga.
      * @param numero O número da vaga.
      */
-    public Vaga(char fila, int numero) {
-        String vagaFinal;
-        String letraVaga = "";
-        letraVaga += filas.charAt(fila);
-        vagaFinal = letraVaga + numero;
-
-        // Define a disponibilidade da vaga com base no valor da vagaFinal
-        if (vagaFinal != null)
-            disponivel = false;
+    public Vaga(int fila, int numero) {
+        char letraVaga = FILAS.charAt(fila);
+        String vagaFinal = letraVaga + String.valueOf(numero);
+        this.id = vagaFinal;
     }
 
     /**

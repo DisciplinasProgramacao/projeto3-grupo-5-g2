@@ -1,9 +1,6 @@
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -11,11 +8,10 @@ import java.util.stream.Collectors;
  */
 public class Estacionamento {
     private String nome;
-    private Cliente[] clientes;
-    private Vaga[] vagas;
+    private List<Cliente> clientes;
+    private List<Vaga> vagas;
     private int quantFileiras;
     private int vagasPorFileira;
-    private List<EstacionamentoRegistro> registros;
 
     /**
      * Construtor para inicializar o estacionamento.
@@ -28,7 +24,8 @@ public class Estacionamento {
         this.nome = nome;
         this.quantFileiras = fileiras;
         this.vagasPorFileira = vagasPorFila;
-        this.registros = new ArrayList<>();
+        this.clientes = new LinkedList<>();
+        this.vagas = gerarVagas();
         gerarVagas();
     }
 
@@ -38,21 +35,10 @@ public class Estacionamento {
      * @param cliente Cliente a ser adicionado.
      */
     public void addCliente(Cliente cliente) {
-        if (clientes == null) {
-            clientes = new Cliente[1];
-            clientes[0] = cliente;
-        } else {
-            for (Cliente c : clientes) {
-                if (c != null && c.getId().equals(cliente.getId())) {
-                    return;
-                }
-            }
-            Cliente[] novaLista = new Cliente[clientes.length + 1];
-            for (int i = 0; i < clientes.length; i++) {
-                novaLista[i] = clientes[i];
-            }
-            novaLista[clientes.length] = cliente;
-            clientes = novaLista;
+        boolean existeMesmoId = this.clientes.stream().anyMatch(elementoCliente -> elementoCliente.getId().equals(cliente.getId()));
+        if(existeMesmoId) return;
+        else {
+            this.clientes.add(cliente);
         }
     }
 
@@ -60,18 +46,17 @@ public class Estacionamento {
      * Gera as vagas do estacionamento com base no número de fileiras e vagas por
      * fileira.
      */
-    private void gerarVagas() {
+    private List<Vaga> gerarVagas() {
         int totalVagas = quantFileiras * vagasPorFileira;
-        vagas = new Vaga[totalVagas];
-        char fila = 'A';
+        List<Vaga> listVaga = new ArrayList<>(totalVagas);
 
-        for (int i = 0; i < totalVagas; i++) {
-            String id = "Vaga " + fila + (i % vagasPorFileira + 1);
-            vagas[i] = new Vaga(id);
-            if (i % vagasPorFileira == vagasPorFileira - 1) {
-                fila++;
+        for(int i = 0; i < quantFileiras; i++){
+            for(int j = 0; j < vagasPorFileira; j++){
+                listVaga.add(new Vaga(i, j + 1));
             }
         }
+
+        return listVaga;
     }
 
     /**
@@ -82,7 +67,7 @@ public class Estacionamento {
      */
     public void estacionar(String placa, LocalDateTime horaEntrada) {
         for (Vaga vaga : vagas) {
-            if (!vaga.isDisponivel() && vaga.getVeiculo() != null && vaga.getVeiculo().getPlaca().equals(placa)) {
+            if (!vaga.isDisponivel() && vaga.getVeiculo().getPlaca().equals(placa)) {
                 System.out.println("O veículo com a placa " + placa + " já está estacionado na vaga " + vaga.getId());
                 return;
             }
@@ -94,7 +79,6 @@ public class Estacionamento {
                 Veiculo veiculo = new Veiculo(placa);
                 vaga.setVeiculo(veiculo);
 
-                Cliente cliente = getClienteByPlaca(placa);
                 if (cliente != null) {
                     // Registra o uso do estacionamento para o cliente
                     int horasEstacionado = calcularHorasEstacionado(horaEntrada, LocalDateTime.now());
@@ -135,13 +119,6 @@ public class Estacionamento {
 
             System.out.println("Veículo com a placa " + placa + " saiu do estacionamento. Valor pago: R$" + valorPago);
 
-            Cliente cliente = getClienteByPlaca(placa);
-            if (cliente != null) {
-                EstacionamentoRegistro registro = new EstacionamentoRegistro(this, vagaDoVeiculo,
-                        vagaDoVeiculo.getVeiculo(), valorPago, horasEstacionado);
-                registros.add(registro);
-            }
-
             vagaDoVeiculo.sair();
         }
     }
@@ -152,11 +129,7 @@ public class Estacionamento {
      * @return Valor total arrecadado.
      */
     public double totalArrecadado() {
-        double totalArrecadado = 0.0;
-        for (EstacionamentoRegistro registro : registros) {
-            totalArrecadado += registro.getValorPago();
-        }
-        return totalArrecadado;
+        return 0d;
     }
 
     /**
@@ -166,13 +139,7 @@ public class Estacionamento {
      * @return Arrecadação mensal.
      */
     public double arrecadacaoNoMes(int mes) {
-        double arrecadacaoMensal = 0.0;
-        for (EstacionamentoRegistro registro : registros) {
-            if (registro.getData().getMonthValue() == mes) {
-                arrecadacaoMensal += registro.getValorPago();
-            }
-        }
-        return arrecadacaoMensal;
+        return 0d;
     }
 
     /**
@@ -181,13 +148,7 @@ public class Estacionamento {
      * @return Valor médio por uso.
      */
     public double valorMedioPorUso() {
-        if (registros.isEmpty()) {
-            return 0.0;
-        }
-
-        double totalArrecadado = totalArrecadado();
-        int totalRegistros = registros.size();
-        return totalArrecadado / totalRegistros;
+        return 0d;
     }
 
     /**
@@ -197,36 +158,37 @@ public class Estacionamento {
      * @return String representando o ranking dos top 5 clientes.
      */
     public String top5Clientes(int mes) {
-        List<EstacionamentoRegistro> registrosNoMes = registros.stream()
-                .filter(registro -> registro.getData().getMonthValue() == mes)
-                .collect(Collectors.toList());
+//        List<EstacionamentoRegistro> registrosNoMes = registros.stream()
+//                .filter(registro -> registro.getData().getMonthValue() == mes)
+//                .collect(Collectors.toList());
+//
+//        Map<Cliente, Double> arrecadacaoClientes = new HashMap<>();
+//        for (EstacionamentoRegistro registro : registrosNoMes) {
+//            Cliente cliente = getClienteByPlaca(registro.getVeiculo().getPlaca());
+//            if (cliente != null) {
+//                double valorPago = registro.getValorPago();
+//                arrecadacaoClientes.put(cliente, arrecadacaoClientes.getOrDefault(cliente, 0.0) + valorPago);
+//            }
+//        }
+//
+//        List<Cliente> topClientes = arrecadacaoClientes.entrySet()
+//                .stream()
+//                .sorted(Map.Entry.<Cliente, Double>comparingByValue().reversed())
+//                .map(Map.Entry::getKey)
+//                .collect(Collectors.toList());
+//
+//        int numClientesNoRanking = Math.min(5, topClientes.size());
+//        StringBuilder ranking = new StringBuilder("Top 5 Clientes no Mês " + mes + ":\n");
+//        for (int i = 0; i < numClientesNoRanking; i++) {
+//            Cliente cliente = topClientes.get(i);
+//            double arrecadacao = arrecadacaoClientes.get(cliente);
+//            ranking.append(i + 1).append(". ")
+//                    .append(cliente.getNome()).append(": R$")
+//                    .append(arrecadacao).append("\n");
+//        }
 
-        Map<Cliente, Double> arrecadacaoClientes = new HashMap<>();
-        for (EstacionamentoRegistro registro : registrosNoMes) {
-            Cliente cliente = getClienteByPlaca(registro.getVeiculo().getPlaca());
-            if (cliente != null) {
-                double valorPago = registro.getValorPago();
-                arrecadacaoClientes.put(cliente, arrecadacaoClientes.getOrDefault(cliente, 0.0) + valorPago);
-            }
-        }
-
-        List<Cliente> topClientes = arrecadacaoClientes.entrySet()
-                .stream()
-                .sorted(Map.Entry.<Cliente, Double>comparingByValue().reversed())
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-
-        int numClientesNoRanking = Math.min(5, topClientes.size());
-        StringBuilder ranking = new StringBuilder("Top 5 Clientes no Mês " + mes + ":\n");
-        for (int i = 0; i < numClientesNoRanking; i++) {
-            Cliente cliente = topClientes.get(i);
-            double arrecadacao = arrecadacaoClientes.get(cliente);
-            ranking.append(i + 1).append(". ")
-                    .append(cliente.getNome()).append(": R$")
-                    .append(arrecadacao).append("\n");
-        }
-
-        return ranking.toString();
+//        return ranking.toString();
+        return "";
     }
 
     /**
@@ -237,7 +199,7 @@ public class Estacionamento {
      */
     public Cliente getClienteByPlaca(String placa) {
         for (Cliente cliente : clientes) {
-            Veiculo veiculo = cliente.possuiVeiculo(placa);
+            Veiculo veiculo = cliente.obterVeiculo(placa);
             if (veiculo != null) {
                 return cliente;
             }
@@ -277,7 +239,7 @@ public class Estacionamento {
      * @return Histórico detalhado do cliente.
      */
     public String historicoCliente(String id) {
-        Cliente busca = new Cliente(id,id);
+        Cliente busca = new Cliente(id, id);
         String historico = "";
         
         for (Cliente cliente : clientes.values()) {

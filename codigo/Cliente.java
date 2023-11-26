@@ -8,19 +8,17 @@ public class Cliente {
     private String nome;
     private String id;
     private List<Veiculo> veiculos;
-    private List<EstacionamentoRegistro> historicoEstacionamentos;
 
     /**
      * Construtor para criar um novo cliente.
      *
-     * @param nome Nome do cliente.
-     * @param id   Identificação única do cliente.
+     * @param id           Identificação única do cliente.
+     * @param nome         Nome do cliente.
      */
-    public Cliente(String nome, String id) {
+    public Cliente(String id, String nome, CategoriaCliente tipoCliente) {
         this.nome = nome;
         this.id = id;
         this.veiculos = new ArrayList<>();
-        this.historicoEstacionamentos = new ArrayList<>();
     }
 
     /**
@@ -56,13 +54,8 @@ public class Cliente {
      * @param placa Placa do veículo.
      * @return O veículo com a placa especificada se o cliente o possuir, caso contrário, retorna null.
      */
-    public Veiculo possuiVeiculo(String placa) {
-        for (Veiculo veiculo : veiculos) {
-            if (veiculo.getPlaca().equals(placa)) {
-                return veiculo;
-            }
-        }
-        return null;
+    public Veiculo obterVeiculo(String placa) {
+        return veiculos.stream().filter(veiculo -> veiculo.getPlaca().equals(placa)).findFirst().orElse(null);
     }
 
     /**
@@ -71,7 +64,7 @@ public class Cliente {
      * @return Número total de usos de estacionamento.
      */
     public int totalDeUsos() {
-        return historicoEstacionamentos.size();
+        return 0;
     }
 
     /**
@@ -81,13 +74,7 @@ public class Cliente {
      * @return Valor total arrecadado pelo cliente com o veículo especificado.
      */
     public double arrecadadoPorVeiculo(String placa) {
-        double totalArrecadado = 0.0;
-        for (EstacionamentoRegistro registro : historicoEstacionamentos) {
-            if (registro.getVeiculo().getPlaca().equals(placa)) {
-                totalArrecadado += registro.getValorPago();
-            }
-        }
-        return totalArrecadado;
+        return 0d;
     }
 
     /**
@@ -96,11 +83,7 @@ public class Cliente {
      * @return Valor total arrecadado pelo cliente.
      */
     public double arrecadadoTotal() {
-        double totalArrecadado = 0.0;
-        for (EstacionamentoRegistro registro : historicoEstacionamentos) {
-            totalArrecadado += registro.getValorPago();
-        }
-        return totalArrecadado;
+        return 0d;
     }
 
     /**
@@ -110,35 +93,6 @@ public class Cliente {
      * @return Valor arrecadado pelo cliente no mês especificado.
      */
     public double arrecadadoNoMes(int mes) {
-        double totalArrecadado = 0.0;
-        for (EstacionamentoRegistro registro : historicoEstacionamentos) {
-            if (registro.getData().getMonthValue() == mes) {
-                totalArrecadado += registro.getValorPago();
-            }
-        }
-        return totalArrecadado;
-    }
-
-    /**
-     * Registra um uso de estacionamento para o cliente.
-     *
-     * @param estacionamento   Estacionamento onde ocorreu o uso.
-     * @param vaga             Vaga utilizada pelo veículo.
-     * @param valorPago        Valor pago pelo uso.
-     * @param horasEstacionado Número de horas em que o veículo esteve estacionado.
-     */
-    public void registrarUsoEstacionamento(Estacionamento estacionamento, Vaga vaga, double valorPago, int horasEstacionado) {
-        Veiculo veiculo = new Veiculo("PlacaDummy"); // Substitua pela lógica de obtenção do veículo correto
-        EstacionamentoRegistro registro = new EstacionamentoRegistro(estacionamento, vaga, veiculo, valorPago, horasEstacionado);
-        historicoEstacionamentos.add(registro);
-    }
-
-    /**
-     * Obtém o histórico de usos de estacionamento registrados pelo cliente.
-     *
-     * @return Lista de registros de uso de estacionamento do cliente.
-     */
-    public List<EstacionamentoRegistro> obterHistoricoEstacionamentos() {
-        return historicoEstacionamentos;
+        return 0d;
     }
 }
