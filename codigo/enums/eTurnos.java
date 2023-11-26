@@ -1,7 +1,7 @@
 package enums;
 
 
-public enum Turnos {
+public enum eTurnos {
 
     MANHA("Manha", 08.00, 12.00, 200),
     TARDE("Tarde", 12.01, 18.00, 200),
