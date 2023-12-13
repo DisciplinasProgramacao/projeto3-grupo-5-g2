@@ -1,44 +1,30 @@
-/**
- * Classe que representa um serviço oferecido nos estacionamentos.
- */
-public abstract class Servicos {
+public enum Servicos {
+
+    MANOBRISTA ("Manobrista",5.0,0),
+    LAVAGEM ("Lavagem",20.0,60),
+    POLIMENTO ("Polimento",45.0, 0);
+
+
     private String nome;
-    private double valor;
-    private double tempoMinimoPermanenciaHoras;
+    private Double valor;
+    private int tempo;
 
-    /**
-     * Construtor da classe Servico.
-     *
-     * @param nome                       O nome do serviço.
-     * @param valor                      O valor do serviço.
-     * @param tempoMinimoPermanenciaHoras O tempo mínimo de permanência em horas para aplicação do serviço.
-     */
-    public Servicos(String nome, double valor, double tempoMinimoPermanenciaHoras) {
-        this.nome = nome;
+    Servicos(String nome, double valor, int tempo){
+        this.nome= nome;
         this.valor = valor;
-        this.tempoMinimoPermanenciaHoras = tempoMinimoPermanenciaHoras;
+        this.tempo = tempo;   
     }
 
-    /**
-     * Calcula o custo do serviço com base no tempo de permanência.
-     *
-     * @param horasEstacionado O tempo de permanência em horas.
-     * @return O custo do serviço.
-     */
-    public double calcularCustoServico(double horasEstacionado) {
-        if (horasEstacionado < tempoMinimoPermanenciaHoras) {
-            return 0.0; // O serviço é gratuito se o tempo mínimo não for atingido
-        }
-        return valor;
-    }
-
-    /**
-     * Obtém o nome do serviço.
-     *
-     * @return O nome do serviço.
-     */
     public String getNome() {
         return nome;
     }
-}
 
+    public int getTempo() {
+        return tempo;
+    }
+    
+    public Double getValor() {
+        return valor;
+    }
+  
+}
