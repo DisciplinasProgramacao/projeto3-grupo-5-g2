@@ -6,13 +6,31 @@ import java.util.Objects;
 
 public class Veiculo {
 	private String placa;
+
+	public UsoDeVaga getUltimoUso() {
+		return usos.get(usos.size() - 1);
+	}
+
 	private List<UsoDeVaga> usos;
-	private LocalDateTime horaEntrada;
+
+	public Cliente getDonoVeiculo() {
+		return donoVeiculo;
+	}
+
+	private Cliente donoVeiculo;
+	private boolean estacionado;
+
+	public boolean isEstacionado() {
+		return estacionado;
+	}
+
 	private Cliente cliente;
 
-	public Veiculo(String placa) {
+	public Veiculo(String placa, Cliente donoVeiculo) {
 		this.placa = placa;
+		this.donoVeiculo = donoVeiculo;
 		this.usos = new ArrayList<>();
+		this.estacionado = false;
 	}
 
 	public Cliente getCliente() {
@@ -22,21 +40,16 @@ public class Veiculo {
 	public String getPlaca() {
 		return placa;
 	}
-
-	public LocalDateTime getHoraEntrada() {
-		return horaEntrada; // Obtenha a hora de entrada do veículo
-	}
-
 	public void estacionar(Vaga vaga, LocalDateTime entrada) {
-		UsoDeVaga uso = new UsoDeVaga(vaga, this, entrada);
+		UsoDeVaga uso = new UsoDeVaga(vaga, entrada);
 		usos.add(uso);
-		vaga.estacionar(this, uso);
+		vaga.estacionar();
 	}
 
 	public double sair(LocalDateTime saida) {
 		UsoDeVaga uso = encontrarUsoMaisRecente();
 		if (uso != null) {
-			double valorPago = uso.sair(saida);
+			double valorPago = uso.sair(saida, this.donoVeiculo);
 			usos.remove(uso);
 			return valorPago;
 		}else{
@@ -46,6 +59,10 @@ public class Veiculo {
 
 	private UsoDeVaga encontrarUsoMaisRecente() {
 		return usos.stream().min(Comparator.comparing(UsoDeVaga::getEntrada)).orElse(null);
+	}
+
+	public void contratarServico(Servicos servico){
+		this.getUltimoUso().contratarServico(servico);
 	}
 
 	public double totalArrecadado() {

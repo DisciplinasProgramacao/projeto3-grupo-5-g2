@@ -8,8 +8,23 @@ import java.util.stream.Collectors;
  */
 public class Estacionamento {
     private String nome;
+
+    public List<Cliente> getClientes() {
+        return clientes;
+    }
+
+    public Cliente getClienteById(String id){
+        return this.getClientes().stream().filter(elementoCliente -> elementoCliente.getId().equals(id)).findFirst().orElse(null);
+    }
+
     private List<Cliente> clientes;
+
+    public Vaga getVagaDisponivel() {
+        return vagas.stream().filter(vaga -> vaga.isDisponivel()).findFirst().orElse(null);
+    }
+
     private List<Vaga> vagas;
+
     private int quantFileiras;
     private int vagasPorFileira;
 
@@ -66,32 +81,26 @@ public class Estacionamento {
      * @param horaEntrada Hora de entrada do veículo.
      */
     public void estacionar(String placa, LocalDateTime horaEntrada) {
-        for (Vaga vaga : vagas) {
-            if (!vaga.isDisponivel() && vaga.getVeiculo().getPlaca().equals(placa)) {
-                System.out.println("O veículo com a placa " + placa + " já está estacionado na vaga " + vaga.getId());
-                return;
-            }
+        Cliente donoVeiculo = this.buscarDonoVeiculoPorPlaca(placa);
+        if(donoVeiculo == null){
+            System.out.println("Veiculo não encontrado, favor efetuar o cadastro");
+            return;
         }
 
-        for (Vaga vaga : vagas) {
-            if (vaga.isDisponivel()) {
-                vaga.estacionar();
-                Veiculo veiculo = new Veiculo(placa);
-                vaga.setVeiculo(veiculo);
+        Veiculo veiculo = donoVeiculo.getVeiculoByPlaca(placa);
 
-                if (cliente != null) {
-                    // Registra o uso do estacionamento para o cliente
-                    int horasEstacionado = calcularHorasEstacionado(horaEntrada, LocalDateTime.now());
-                    double valorPago = calcularValorPago(horasEstacionado);
-                    cliente.registrarUsoEstacionamento(this, vaga, valorPago, horasEstacionado);
-                }
-
-                System.out.println("Veículo com a placa " + placa + " estacionado na vaga " + vaga.getId());
-                return;
-            }
+        if (veiculo.isEstacionado()) {
+            System.out.println("O veículo com a placa " + placa + " já está estacionado");
+            return;
         }
 
-        System.out.println("Não há vagas disponíveis para o veículo com a placa " + placa);
+        Vaga vagaDisponivel = this.getVagaDisponivel();
+        if(vagaDisponivel == null){
+            System.out.println("Não há vagas disponíveis");
+            return;
+        }
+
+        veiculo.estacionar(vagaDisponivel, horaEntrada);
     }
 
     /**
@@ -101,26 +110,15 @@ public class Estacionamento {
      * @param horaSaida Hora de saída do veículo.
      */
     public void sair(String placa, LocalDateTime horaSaida) {
-        Vaga vagaDoVeiculo = null;
-
-        for (Vaga vaga : vagas) {
-            if (!vaga.isDisponivel() && vaga.getVeiculo() != null && vaga.getVeiculo().getPlaca().equals(placa)) {
-                vagaDoVeiculo = vaga;
-                break;
-            }
+        Cliente cliente = this.buscarDonoVeiculoPorPlaca(placa);
+        if(cliente == null){
+            System.out.println("Veiculo não encontrado.");
+            return;
         }
 
-        if (vagaDoVeiculo == null) {
-            System.out.println("Veículo com a placa " + placa + " não encontrado no estacionamento.");
-        } else {
-            LocalDateTime horaEntrada = vagaDoVeiculo.getHoraEntrada();
-            int horasEstacionado = calcularHorasEstacionado(horaEntrada, horaSaida);
-            double valorPago = calcularValorPago(horasEstacionado);
-
-            System.out.println("Veículo com a placa " + placa + " saiu do estacionamento. Valor pago: R$" + valorPago);
-
-            vagaDoVeiculo.sair();
-        }
+        Veiculo veiculo = cliente.getVeiculoByPlaca(placa);
+        double valorTotal = veiculo.sair(horaSaida);
+        System.out.println("Veículo com a placa " + placa + " saiu do estacionamento. Valor pago: R$" + valorTotal);
     }
 
     /**
@@ -192,22 +190,6 @@ public class Estacionamento {
     }
 
     /**
-     * Obtém um cliente com base na placa do veículo.
-     *
-     * @param placa Placa do veículo.
-     * @return Cliente que possui o veículo com a placa especificada.
-     */
-    public Cliente getClienteByPlaca(String placa) {
-        for (Cliente cliente : clientes) {
-            Veiculo veiculo = cliente.obterVeiculo(placa);
-            if (veiculo != null) {
-                return cliente;
-            }
-        }
-        return null; // Retorna null se nenhum cliente possuir o veículo
-    }
-
-    /**
      * Calcula o valor a ser pago com base no número de horas estacionado.
      *
      * @param horasEstacionado Número de horas estacionado.
@@ -238,16 +220,33 @@ public class Estacionamento {
      * @param id Identificação do cliente.
      * @return Histórico detalhado do cliente.
      */
-    public String historicoCliente(String id) {
-        Cliente busca = new Cliente(id, id);
-        String historico = "";
-        
-        for (Cliente cliente : clientes.values()) {
-            if (busca.equals(cliente)) {
-                historico = cliente.historicoCliente();
+//    public String historicoCliente(String id) {
+//        Cliente busca = new Cliente(id, id);
+//        String historico = "";
+//
+//        for (Cliente cliente : clientes.values()) {
+//            if (busca.equals(cliente)) {
+//                historico = cliente.historicoCliente();
+//            }
+//        }
+//        return historico;
+//    }
+
+
+
+    /**
+     * Obtém um cliente com base na placa do veículo.
+     *
+     * @param placa Placa do veículo.
+     * @return Cliente que possui o veículo com a placa especificada.
+     */
+    public Cliente buscarDonoVeiculoPorPlaca(String placa){
+        for(Cliente cliente : this.clientes){
+            if(cliente.getVeiculoByPlaca(placa) != null){
+                return cliente;
             }
         }
-        return historico;
+        return null;
     }
 }
     

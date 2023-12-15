@@ -9,6 +9,12 @@ public class Cliente {
     private String id;
     private List<Veiculo> veiculos;
 
+    public CategoriaCliente getCategoriaCliente() {
+        return categoriaCliente;
+    }
+
+    private CategoriaCliente categoriaCliente;
+
     /**
      * Construtor para criar um novo cliente.
      *
@@ -19,6 +25,7 @@ public class Cliente {
         this.nome = nome;
         this.id = id;
         this.veiculos = new ArrayList<>();
+        this.categoriaCliente = tipoCliente;
     }
 
     /**
@@ -94,5 +101,9 @@ public class Cliente {
      */
     public double arrecadadoNoMes(int mes) {
         return 0d;
+    }
+
+    public Veiculo getVeiculoByPlaca(String placa){
+        return this.veiculos.stream().filter(veiculo -> veiculo.getPlaca().equals(placa)).findFirst().orElse(null);
     }
 }

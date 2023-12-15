@@ -1,8 +1,7 @@
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
-public class Mensalista extends CategoriaCliente{
-    @Override
-    public double sair(UsoDeVaga usoVaga, LocalTime horario) {
+public class Mensalista implements CategoriaCliente {
+    public double sair(UsoDeVaga usoVaga, LocalDateTime horarioSaida) {
         return 0d;
     }
 }

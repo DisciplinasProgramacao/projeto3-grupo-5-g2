@@ -1,5 +1,6 @@
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-public abstract class CategoriaCliente {
-    public abstract double sair(UsoDeVaga usoVaga, LocalTime horario);
+public interface CategoriaCliente {
+    double sair(UsoDeVaga usoVaga, LocalDateTime horario);
 }

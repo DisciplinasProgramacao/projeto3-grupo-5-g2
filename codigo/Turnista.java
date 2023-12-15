@@ -1,3 +1,4 @@
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class Turnista extends Horista{
@@ -14,11 +15,11 @@ public class Turnista extends Horista{
     }
 
     @Override
-    public double sair(UsoDeVaga usoVaga, LocalTime horario){
-        if(this.turno.verificarDentroTurno(horario)){
+    public double sair(UsoDeVaga usoVaga, LocalDateTime horarioSaida){
+        if(this.turno.verificarDentroTurno(LocalTime.from(horarioSaida))){
             return 0d;
         }else{
-            return super.sair(usoVaga, horario);
+            return super.sair(usoVaga, horarioSaida);
         }
     }
 }

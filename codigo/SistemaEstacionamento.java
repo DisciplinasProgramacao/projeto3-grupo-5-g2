@@ -1,3 +1,4 @@
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
 
@@ -14,7 +15,6 @@ public class SistemaEstacionamento {
      * Inicializa as instâncias de Cliente e Estacionamento conforme necessário.
      */
     public SistemaEstacionamento() {
-        cliente = new Cliente("Nome do Cliente", "ID do Cliente"); // Isso pode variar dependendo da estrutura do seu sistema
         estacionamento = new Estacionamento("Nome do Estacionamento", 3, 5); // Isso pode variar dependendo da estrutura do seu sistema
     }
 
@@ -22,7 +22,7 @@ public class SistemaEstacionamento {
      * Inicializa e executa o sistema de estacionamento.
      */
     public void iniciarSistema() {
-        Scanner scanner = new Scanner(System.in);
+        this.scanner = new Scanner(System.in);
 
         while (true) {
             menu();
@@ -40,7 +40,7 @@ public class SistemaEstacionamento {
                     estacionarVeiculo();
                     break;
                 case 4:
-                    contratarServiçoAdd();
+                    contratarServicoAdd();
                     break;
                 case 5:
                     sairVaga();
@@ -68,6 +68,7 @@ public class SistemaEstacionamento {
     private void cadastrarCliente() {
         System.out.println("------ Cadastro de Cliente ------");
         System.out.print("Nome do cliente: ");
+        scanner.next();
         String nome = scanner.nextLine();
         System.out.print("Id do cliente: ");
         String id = scanner.nextLine();
@@ -111,47 +112,37 @@ public class SistemaEstacionamento {
 
     private void cadastrarVeiculo() {
         System.out.println("------ Cadastro de Veículo ------");
+        System.out.print("Id do cliente: ");
+        scanner.next();
+        String id = scanner.nextLine();
+        Cliente cliente = estacionamento.getClienteById(id);
+        if(cliente == null){
+            System.out.println("Cliente não existente, favor efetuar cadastro");
+            return;
+        }
+
         System.out.print("Placa do Veiculo: ");
         String placa = scanner.nextLine();
-        Veiculo veiculo = new Veiculo(placa);
-        System.out.print("Id do cliente: ");
-        String id = scanner.nextLine();
-        estacionamento.addVeiculo(veiculo, id);
+        cliente.addVeiculo(new Veiculo(placa, cliente));
     }
 
     private void estacionarVeiculo() {
+
         System.out.println("Informe a placa do veículo:");
-        String placa = scanner.next();
-        System.out.println("Informe a vaga (ID da vaga) onde deseja estacionar:");
-        String idVaga = scanner.next();
+        scanner.next();
+        String placa = scanner.nextLine();
 
-        Cliente clienteEncontrado = cliente.encontrarClientePorPlaca(placa);
-        Vaga vaga = estacionamento.encontrarVagaPorId(idVaga);
-
-        if (clienteEncontrado != null && vaga != null) {
-            Veiculo veiculoDoCliente = clienteEncontrado.obterVeiculo(placa); // Procure o veículo no
-                                                                               // cliente
-            if (veiculoDoCliente != null) {
-                veiculoDoCliente.estacionar(vaga); // Estacione o veículo na vaga
-                System.out.println("Veículo estacionado com sucesso na vaga " + vaga.getId());
-            } else {
-                System.out.println(
-                        "Veículo não pertence a esse cliente. Verifique os dados e tente novamente.");
-            }
-        } else {
-            System.out.println("Veículo ou vaga não encontrados. Verifique os dados e tente novamente.");
-        }
-
+        estacionamento.estacionar(placa, LocalDateTime.now());
     }
 
-    private void contratarServiçoAdd() {
+    private void contratarServicoAdd() {
         System.out.println("Informe a placa do veículo:");
-        placa = scanner.next();
+        String placa = scanner.nextLine();
 
-        clienteEncontrado = cliente.encontrarClientePorPlaca(placa);
+        Cliente clienteEncontrado = estacionamento.buscarDonoVeiculoPorPlaca(placa);
 
         if (clienteEncontrado != null) {
-            Veiculo veiculoDoCliente = clienteEncontrado.possuiVeiculo(placa);
+            Veiculo veiculoDoCliente = clienteEncontrado.getVeiculoByPlaca(placa);
 
             if (veiculoDoCliente != null) {
                 System.out.println("Escolha um serviço adicional:");
@@ -163,15 +154,15 @@ public class SistemaEstacionamento {
 
                 switch (opcaoServico) {
                     case 1:
-                        veiculoDoCliente.contratarServico(new ServicoLavagem());
+                        veiculoDoCliente.contratarServico(Servicos.LAVAGEM);
                         System.out.println("Serviço de Lavagem contratado para o veículo.");
                         break;
                     case 2:
-                        veiculoDoCliente.contratarServico(new ServicoManobrista());
+                        veiculoDoCliente.contratarServico(Servicos.MANOBRISTA);
                         System.out.println("Serviço de Manobrista contratado para o veículo.");
                         break;
                     case 3:
-                        veiculoDoCliente.contratarServico(new ServicoPolimento());
+                        veiculoDoCliente.contratarServico(Servicos.POLIMENTO);
                         System.out.println("Serviço de Polimento contratado para o veículo.");
                         break;
                     default:
@@ -180,7 +171,7 @@ public class SistemaEstacionamento {
                 }
             } else {
                 System.out.println(
-                        "Veículo não pertence a esse cliente. Verifique os dados e tente novamente.");
+                        "Veículo não encontrado. Verifique os dados e tente novamente.");
             }
         } else {
             System.out.println("Veículo não encontrado. Verifique os dados e tente novamente.");
@@ -190,39 +181,8 @@ public class SistemaEstacionamento {
 
     private void sairVaga() {
         System.out.println("Informe a placa do veículo que deseja sair:");
-        String placaSaida = scanner.next();
-
-        Cliente clienteEncontrado = estacionamento.getClienteByPlaca(placaSaida);
-
-        if (clienteEncontrado != null) {
-            Veiculo veiculoDoCliente = clienteEncontrado.obterVeiculo(placaSaida);
-
-            if (veiculoDoCliente != null) {
-                List<Cliente> listaClientes = estacionamento.getClientes(); // Acessa a lista de clientes do
-                                                                            // estacionamento
-                for (Cliente c : listaClientes) {
-                    if (c.equals(clienteEncontrado)) {
-                        c.removerVeiculo(veiculoDoCliente);
-                        break;
-                    }
-                }
-
-                Vaga vagaDoVeiculo = estacionamento.encontrarVagaPorVeiculo(veiculoDoCliente);
-
-                if (vagaDoVeiculo != null) {
-                    estacionamento.liberarVaga(vagaDoVeiculo);
-                    System.out.println("Veículo saiu do estacionamento com sucesso.");
-                } else {
-                    System.out.println("Vaga do veículo não encontrada.");
-                }
-            } else {
-                System.out.println(
-                        "Veículo não pertence a esse cliente. Verifique os dados e tente novamente.");
-            }
-        } else {
-            System.out.println("Veículo não encontrado. Verifique os dados e tente novamente.");
-        }
-
+        String placaSaida = scanner.nextLine();
+        estacionamento.sair(placaSaida, LocalDateTime.now());
     }
 
     private void encerrarSistema() {

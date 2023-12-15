@@ -20,14 +20,9 @@ public class Vaga {
      *
      * @return true se o veículo foi estacionado com sucesso, false se a vaga estiver ocupada.
      */
-    public boolean estacionar() {
-        if (disponivel) {
-            disponivel = false;
-            System.out.println("Veículo estacionado na " + id);
-            return true;
-        } else {
-            return 0.0;
-        }
+    public void estacionar() {
+        disponivel = false;
+        System.out.println("Veículo estacionado na " + id);
     }
 
     /**
@@ -35,14 +30,9 @@ public class Vaga {
      *
      * @return true se a vaga foi liberada com sucesso, false se a vaga já estiver vazia.
      */
-    public boolean sair() {
-        if (!disponivel) {
-            disponivel = true;
-            System.out.println("Veículo saiu da " + id);
-            return true;
-        } else {
-            return 0.0;
-        }
+    public void sair() {
+        disponivel = true;
+        System.out.println("Veículo saiu da " + id);
     }
 
     /**
