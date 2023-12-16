@@ -8,23 +8,8 @@ import java.util.stream.Collectors;
  */
 public class Estacionamento {
     private String nome;
-
-    public List<Cliente> getClientes() {
-        return clientes;
-    }
-
-    public Cliente getClienteById(int id){
-        return this.getClientes().stream().filter(elementoCliente -> elementoCliente.getId() == id).findFirst().orElse(null);
-    }
-
     private List<Cliente> clientes;
-
-    public Vaga getVagaDisponivel() {
-        return vagas.stream().filter(vaga -> vaga.isDisponivel()).findFirst().orElse(null);
-    }
-
     private List<Vaga> vagas;
-
     private int quantFileiras;
     private int vagasPorFileira;
 
@@ -44,9 +29,42 @@ public class Estacionamento {
     }
 
     /**
+     * Busca a primeira vaga disponível no estacionamento.
+     *
+     * @return Vaga Vaga disponível. (null caso não existe vaga disponível)
+     */
+    public Vaga getVagaDisponivel() {
+        return vagas.stream()
+                    .filter(Vaga::isDisponivel)
+                    .findFirst()
+                    .orElse(null);
+    }
+
+    /**
+     * Obtem todos os clientes do estacionamento.
+     *
+     * @return List<Cliente> Clientes do estacionamento
+     */
+    public List<Cliente> getClientes() {
+        return clientes;
+    }
+
+    /**
+     * Obtem o cliente com o id especificado ou nulo caso o cliente não exista.
+     * (TODO: Ao invés de nulo retornar uma exceção)
+     *
+     * @param id Id do cliente
+     * @return Cliente Cliente buscado
+     */
+    public Cliente getClienteById(int id){
+        return this.getClientes().stream().filter(elementoCliente -> elementoCliente.getId() == id).findFirst().orElse(null);
+    }
+
+    /**
      * Adiciona um cliente ao estacionamento.
      *
      * @param cliente Cliente a ser adicionado.
+     * @throws IllegalArgumentException Erro caso o id do cliente já esteja registrado
      */
     public void addCliente(Cliente cliente) throws IllegalArgumentException{
         boolean existeMesmoId = this.clientes.stream().anyMatch(elementoCliente -> elementoCliente.getId() == cliente.getId());
@@ -59,6 +77,8 @@ public class Estacionamento {
     /**
      * Gera as vagas do estacionamento com base no número de fileiras e vagas por
      * fileira.
+     *
+     * @return List<Vaga> Lista de vagas geradas
      */
     private List<Vaga> gerarVagas() {
         int totalVagas = quantFileiras * vagasPorFileira;
@@ -122,7 +142,9 @@ public class Estacionamento {
      * @return Valor total arrecadado.
      */
     public double totalArrecadado() {
-        return this.clientes.stream().mapToDouble(cliente -> cliente.arrecadadoTotal()).sum();
+        return this.clientes.stream()
+                            .mapToDouble(Cliente::arrecadadoTotal)
+                            .sum();
     }
 
     /**
@@ -132,7 +154,9 @@ public class Estacionamento {
      * @return Arrecadação mensal.
      */
     public double arrecadacaoNoMes(int mes) {
-        return this.clientes.stream().mapToDouble(cliente -> cliente.arrecadadoNoMes(mes)).sum();
+        return this.clientes.stream()
+                            .mapToDouble(cliente -> cliente.arrecadadoNoMes(mes))
+                            .sum();
     }
 
     /**
@@ -145,7 +169,32 @@ public class Estacionamento {
     }
 
     /**
-     * Retorna os top 5 clientes com maior arrecadação no mês especificado.
+     * Calcula a quantidade de usos por mensalistas.
+     *
+     * @return Total de usos dos mensalistas.
+     */
+    public double quantidadeUsoMensalista() {
+        return this.clientes.stream()
+                            .filter(cliente -> cliente.getCategoriaCliente() instanceof Mensalista)
+                            .mapToDouble(Cliente::totalDeUsos)
+                            .sum();
+    }
+
+    /**
+     * Calcula a arrecadação média por horistas no mês atual.
+     *
+     * @return Total de usos dos mensalistas.
+     */
+    public double arrecadacaoMediaHoristasMesAtual() {
+        return this.clientes.stream()
+                .filter(cliente -> cliente.getCategoriaCliente() instanceof Horista)
+                .mapToDouble(cliente -> cliente.arrecadadoNoMes(LocalDateTime.now().getMonthValue()))
+                .average()
+                .orElse(0);
+    }
+
+    /**
+     * Retorna um relatório com os top 5 clientes com maior arrecadação no mês especificado.
      *
      * @param mes Mês para o qual calcular o ranking de clientes.
      * @return String representando o ranking dos top 5 clientes.
@@ -201,8 +250,6 @@ public class Estacionamento {
         }
     }
 
-
-
     /**
      * Obtém um cliente com base na placa do veículo.
      *
@@ -218,6 +265,11 @@ public class Estacionamento {
         return null;
     }
 
+    /**
+     * Gera o próximo id de cliente para o estacionamento.
+     *
+     * @return int Próximo id de cliente.
+     */
     public int gerarProximoIdCliente(){
         if(this.getClientes().isEmpty()){
             return 1;
@@ -228,6 +280,11 @@ public class Estacionamento {
                     .max().orElse(0) + 1;
     }
 
+    /**
+     * Gera a tabela de clientes do estacionamento.
+     *
+     * @return String tabela
+     */
     public String gerarTabelaClientes() {
         StringBuilder tabela = new StringBuilder();
         String colunaId = "Id ";

@@ -1,4 +1,13 @@
 public class Utils {
+
+
+    /**
+     * Centraliza um texto com base em outro texto.
+     *
+     * @param textoParaCentralizar Texto para ser centralizado
+     * @param baseParaCentralizar Texto base para centralização
+     * @return Texto centralizado.
+     */
     public static String centralizarTexto(String textoParaCentralizar, String baseParaCentralizar){
 
         StringBuilder centralizadoBuilder = new StringBuilder();
@@ -13,6 +22,13 @@ public class Utils {
         return centralizadoBuilder.toString();
     }
 
+    /**
+     * Centraliza um texto com base em outro texto.
+     *
+     * @param string String para se preencher até o limite
+     * @param limit Limite para ser preenchido
+     * @return Texto preenchido.
+     */
     public static String fillSpacesToLimit(String string, int limit){
         if(string.length() > limit){
             return string.substring(0, limit - 4) + "...";
