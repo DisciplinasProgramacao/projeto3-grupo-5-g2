@@ -4,12 +4,23 @@ import java.time.LocalTime;
 public class Turnista extends Horista{
     private Turno turno;
 
+    /**
+     * Constroi o Turnista com determinado turno.<br>
+     *
+     * @param turno Turno do Turnista
+     * @return void
+     */
     public Turnista(Turno turno){
         this.turno = turno;
     }
 
     public Turnista() {}
 
+    /**
+     * Define o turno para o Turnista.<br>
+     *
+     * @return void
+     */
     public void setTurno(Turno turno) {
         this.turno = turno;
     }

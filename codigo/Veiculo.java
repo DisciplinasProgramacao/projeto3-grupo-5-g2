@@ -6,25 +6,9 @@ import java.util.Objects;
 
 public class Veiculo {
 	private String placa;
-
-	public UsoDeVaga getUltimoUso() {
-		if(this.usos.isEmpty()){
-			return null;
-		} else return usos.get(usos.size() - 1);
-	}
-
 	private List<UsoDeVaga> usos;
-
-	public Cliente getDonoVeiculo() {
-		return donoVeiculo;
-	}
-
 	private Cliente donoVeiculo;
 	private boolean estacionado;
-
-	public boolean isEstacionado() {
-		return estacionado;
-	}
 
 	public Veiculo(String placa, Cliente donoVeiculo) {
 		this.placa = placa;
@@ -33,9 +17,45 @@ public class Veiculo {
 		this.estacionado = false;
 	}
 
+	/**
+	 * Verifica se o veículo está estacionado
+	 * @return boolean "true" caso o veículo esteja estacionado
+	 */
+	public boolean isEstacionado() {
+		return estacionado;
+	}
+
+	/**
+	 * Obtem o dono do veículo
+	 * @return Cliente Dono do veículo
+	 */
+	public Cliente getDonoVeiculo() {
+		return donoVeiculo;
+	}
+
+	/**
+	 * Obtem a placa do veículo
+	 * @return String Placa do veículo
+	 */
 	public String getPlaca() {
 		return placa;
 	}
+
+	/**
+	 * Obtem o último uso do veículo. (null caso não existam usos)
+	 * @return UsoDeVaga Último uso
+	 */
+	public UsoDeVaga getUltimoUso() {
+		if(this.usos.isEmpty()){
+			return null;
+		} else return usos.get(usos.size() - 1);
+	}
+
+	/**
+	 * Estaciona o veículo em determinada vaga em determinado dia/hora
+	 * @param vaga vaga para estacionar
+	 * @param entrada Data/Hora entrada
+	 */
 	public void estacionar(Vaga vaga, LocalDateTime entrada) {
 		UsoDeVaga uso = new UsoDeVaga(vaga, entrada);
 		this.estacionado = true;
@@ -43,6 +63,12 @@ public class Veiculo {
 		vaga.estacionar();
 	}
 
+	/**
+	 * Calcula o valor total para ser pago ao sair do estacionamento.
+	 * @param saida Horário de saída
+	 * @return double Valor total devido
+	 * @throws IllegalStateException Caso o veículo não esteja estacionado
+	 */
 	public double sair(LocalDateTime saida) throws IllegalStateException{
 		if(this.isEstacionado()){
 			UsoDeVaga uso = encontrarUsoMaisRecente();
@@ -65,11 +91,18 @@ public class Veiculo {
 	}
 
 	public double totalArrecadado() {
-		return 0d;
+		return this.getUsos()
+				.stream()
+				.mapToDouble(UsoDeVaga::getTotalPago)
+				.sum();
 	}
 
 	public double arrecadadoNoMes(int mes) {
-		return 0d;
+		return this.getUsos()
+				.stream()
+				.filter(usoDeVaga -> usoDeVaga.getSaida().getMonth().getValue() == mes && usoDeVaga.getSaida().getYear() == LocalDateTime.now().getYear())
+				.mapToDouble(UsoDeVaga::getTotalPago)
+				.sum();
 	}
 
 	public int totalDeUsos() {

@@ -37,6 +37,7 @@ public class UsoDeVaga {
         this.entrada = entrada; // Inicializa a entrada com a data e hora atual
         this.saida = null; // A saída é inicialmente nula, pois o veículo ainda não saiu.
         this.servicosContratados = new LinkedList<>();
+        this.valorPago = 0d;
     }
 
     /**
@@ -74,10 +75,22 @@ public class UsoDeVaga {
         return valorPago;
     }
 
+    /**
+     * Contratar serviço e adicionar na lista de serviços no UsoDeVaga.
+     *
+     * @param servico Serviço à ser contratado
+     * @return void
+     */
     public void contratarServico(Servicos servico){
         this.servicosContratados.add(servico);
     }
 
+    /**
+     * Retorna o valor total dos serviços que puderam ser cumpridos.
+     *
+     * @param horarioSaida Horário de saída para verificação do tempo dos serviços
+     * @return double Valor total dos serviços
+     */
     public double getValorServicos(LocalDateTime horarioSaida) {
         long tempoGastoSegundos = Duration.between(this.getEntrada(), horarioSaida).getSeconds();
         double tempoGastoHoras = ((double) tempoGastoSegundos) / (60 * 60);
@@ -107,14 +120,29 @@ public class UsoDeVaga {
         return tempoGastoHoras;
     }
 
+    /**
+     * Retorna a lista de serviços do UsoDeVaga.
+     *
+     * @return Lista de serviços do UsoDeVaga.
+     */
     public List<Servicos> getServicos() {
         return this.servicosContratados;
     }
 
+    /**
+     * Retorna o valor total pago no Uso.
+     *
+     * @return Valor total pago no Uso até então
+     */
     public double getTotalPago() {
         return this.valorPago();
     }
 
+    /**
+     * Verifica se o veículo está estacionado.
+     *
+     * @return boolean "true" caso o veículo não tenha saído do estacionamento ainda
+     */
     public boolean isEmUso(){
         return this.getSaida() == null;
     }

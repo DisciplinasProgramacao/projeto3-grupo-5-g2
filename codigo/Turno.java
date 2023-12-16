@@ -11,12 +11,26 @@ public enum Turno {
         return nome;
     }
 
+    /**
+     * Constroi o Turno com suas configurações<br>
+     *
+     * @param inicio Inicio do turno
+     * @param fim Fim do turno
+     * @param nome Nome do turno
+     * @return void
+     */
     Turno(LocalTime inicio, LocalTime fim, String nome){
         this.inicio = inicio;
         this.fim = fim;
         this.nome = nome;
     }
 
+    /**
+     * Verifica se determinado horário está dentro de um turno<br>
+     *
+     * @param horario Horário para verificar
+     * @return boolean "true" caso o horário esteja dentro do turno
+     */
     public boolean verificarDentroTurno(LocalTime horario){
         return horario.isAfter(this.inicio) && horario.isBefore(this.fim);
     }
