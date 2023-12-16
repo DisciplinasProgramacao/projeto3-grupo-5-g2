@@ -13,8 +13,8 @@ public class Estacionamento {
         return clientes;
     }
 
-    public Cliente getClienteById(String id){
-        return this.getClientes().stream().filter(elementoCliente -> elementoCliente.getId().equals(id)).findFirst().orElse(null);
+    public Cliente getClienteById(int id){
+        return this.getClientes().stream().filter(elementoCliente -> elementoCliente.getId() == id).findFirst().orElse(null);
     }
 
     private List<Cliente> clientes;
@@ -41,7 +41,6 @@ public class Estacionamento {
         this.vagasPorFileira = vagasPorFila;
         this.clientes = new LinkedList<>();
         this.vagas = gerarVagas();
-        gerarVagas();
     }
 
     /**
@@ -49,12 +48,12 @@ public class Estacionamento {
      *
      * @param cliente Cliente a ser adicionado.
      */
-    public void addCliente(Cliente cliente) {
-        boolean existeMesmoId = this.clientes.stream().anyMatch(elementoCliente -> elementoCliente.getId().equals(cliente.getId()));
-        if(existeMesmoId) return;
-        else {
-            this.clientes.add(cliente);
+    public void addCliente(Cliente cliente) throws IllegalArgumentException{
+        boolean existeMesmoId = this.clientes.stream().anyMatch(elementoCliente -> elementoCliente.getId() == cliente.getId());
+        if(existeMesmoId){
+            throw new IllegalArgumentException("Id de cliente já existente no estacionamento");
         }
+        else this.clientes.add(cliente);
     }
 
     /**
@@ -80,27 +79,25 @@ public class Estacionamento {
      * @param placa       Placa do veículo a ser estacionado.
      * @param horaEntrada Hora de entrada do veículo.
      */
-    public void estacionar(String placa, LocalDateTime horaEntrada) {
+    public Vaga estacionar(String placa, LocalDateTime horaEntrada) throws IllegalStateException, IllegalArgumentException{
         Cliente donoVeiculo = this.buscarDonoVeiculoPorPlaca(placa);
         if(donoVeiculo == null){
-            System.out.println("Veiculo não encontrado, favor efetuar o cadastro");
-            return;
+            throw new IllegalArgumentException("Veiculo não encontrado, favor efetuar o cadastro");
         }
 
         Veiculo veiculo = donoVeiculo.getVeiculoByPlaca(placa);
 
         if (veiculo.isEstacionado()) {
-            System.out.println("O veículo com a placa " + placa + " já está estacionado");
-            return;
+            throw new IllegalStateException("O veículo com a placa " + placa + " já está estacionado");
         }
 
         Vaga vagaDisponivel = this.getVagaDisponivel();
         if(vagaDisponivel == null){
-            System.out.println("Não há vagas disponíveis");
-            return;
+            throw new IllegalStateException("Não há vagas disponíveis");
         }
 
         veiculo.estacionar(vagaDisponivel, horaEntrada);
+        return vagaDisponivel;
     }
 
     /**
@@ -109,16 +106,14 @@ public class Estacionamento {
      * @param placa     Placa do veículo a ser removido.
      * @param horaSaida Hora de saída do veículo.
      */
-    public void sair(String placa, LocalDateTime horaSaida) {
+    public double sair(String placa, LocalDateTime horaSaida) throws IllegalArgumentException, IllegalStateException{
         Cliente cliente = this.buscarDonoVeiculoPorPlaca(placa);
         if(cliente == null){
-            System.out.println("Veiculo não encontrado.");
-            return;
+            throw new IllegalArgumentException("Veiculo não encontrado");
         }
 
         Veiculo veiculo = cliente.getVeiculoByPlaca(placa);
-        double valorTotal = veiculo.sair(horaSaida);
-        System.out.println("Veículo com a placa " + placa + " saiu do estacionamento. Valor pago: R$" + valorTotal);
+        return veiculo.sair(horaSaida);
     }
 
     /**
@@ -127,7 +122,7 @@ public class Estacionamento {
      * @return Valor total arrecadado.
      */
     public double totalArrecadado() {
-        return 0d;
+        return this.clientes.stream().mapToDouble(cliente -> cliente.arrecadadoTotal()).sum();
     }
 
     /**
@@ -137,7 +132,7 @@ public class Estacionamento {
      * @return Arrecadação mensal.
      */
     public double arrecadacaoNoMes(int mes) {
-        return 0d;
+        return this.clientes.stream().mapToDouble(cliente -> cliente.arrecadadoNoMes(mes)).sum();
     }
 
     /**
@@ -146,7 +141,7 @@ public class Estacionamento {
      * @return Valor médio por uso.
      */
     public double valorMedioPorUso() {
-        return 0d;
+        return this.clientes.stream().mapToDouble(cliente -> cliente.mediaPorUso()).average().orElse(0);
     }
 
     /**
@@ -156,81 +151,55 @@ public class Estacionamento {
      * @return String representando o ranking dos top 5 clientes.
      */
     public String top5Clientes(int mes) {
-//        List<EstacionamentoRegistro> registrosNoMes = registros.stream()
-//                .filter(registro -> registro.getData().getMonthValue() == mes)
-//                .collect(Collectors.toList());
-//
-//        Map<Cliente, Double> arrecadacaoClientes = new HashMap<>();
-//        for (EstacionamentoRegistro registro : registrosNoMes) {
-//            Cliente cliente = getClienteByPlaca(registro.getVeiculo().getPlaca());
-//            if (cliente != null) {
-//                double valorPago = registro.getValorPago();
-//                arrecadacaoClientes.put(cliente, arrecadacaoClientes.getOrDefault(cliente, 0.0) + valorPago);
-//            }
-//        }
-//
-//        List<Cliente> topClientes = arrecadacaoClientes.entrySet()
-//                .stream()
-//                .sorted(Map.Entry.<Cliente, Double>comparingByValue().reversed())
-//                .map(Map.Entry::getKey)
-//                .collect(Collectors.toList());
-//
-//        int numClientesNoRanking = Math.min(5, topClientes.size());
-//        StringBuilder ranking = new StringBuilder("Top 5 Clientes no Mês " + mes + ":\n");
-//        for (int i = 0; i < numClientesNoRanking; i++) {
-//            Cliente cliente = topClientes.get(i);
-//            double arrecadacao = arrecadacaoClientes.get(cliente);
-//            ranking.append(i + 1).append(". ")
-//                    .append(cliente.getNome()).append(": R$")
-//                    .append(arrecadacao).append("\n");
-//        }
+        List<Cliente> sortedClientes = this.clientes.stream()
+                                                    .sorted((clienteA, clienteB) -> clienteA.arrecadadoNoMes(mes) < clienteB.arrecadadoNoMes(mes) ? 1 : -1)
+                                                    .limit(5)
+                                                    .toList();
+        StringBuilder tabela = new StringBuilder();
+        String colunaId = "Id ";
+        String colunaNome = "Nome               ";
+        String colunaTotal = "Total arrecadado      ";
+        String topoTabela = String.format(" %s | %s | %s ", colunaId, colunaNome, colunaTotal);
+        tabela.append("_".repeat(topoTabela.length() + 2)).append('\n');
+        tabela.append("|").append(topoTabela).append("|").append("\n");
 
-//        return ranking.toString();
-        return "";
+        if(sortedClientes.isEmpty()){
+            String naoExistemClientes = "Não existem clientes cadastrados";
+            String aviso = Utils.centralizarTexto(naoExistemClientes, topoTabela);
+
+            tabela.append("|").append(aviso).append("|").append("\n");
+        }else {
+            for(Cliente cliente:sortedClientes){
+                String idCliente = String.valueOf(cliente.getId());
+                idCliente += " ".repeat(colunaId.length() - idCliente.length());
+
+                String nomeCliente = String.valueOf(cliente.getNome());
+                nomeCliente += " ".repeat(colunaNome.length() - nomeCliente.length());
+
+                String quantTotalCliente = String.format("R$%5.2f", cliente.arrecadadoNoMes(mes));
+                quantTotalCliente = Utils.fillSpacesToLimit(quantTotalCliente, colunaTotal.length());
+
+                tabela.append(String.format("| %s | %s | %s |\n", idCliente, nomeCliente, quantTotalCliente));
+            }
+        }
+        tabela.append("_".repeat(topoTabela.length() + 2)).append('\n');
+        return tabela.toString();
     }
 
-    /**
-     * Calcula o valor a ser pago com base no número de horas estacionado.
-     *
-     * @param horasEstacionado Número de horas estacionado.
-     * @return Valor a ser pago.
-     */
-    private double calcularValorPago(int horasEstacionado) {
-        // Por exemplo, um valor fixo de R$ 5 por hora de estacionamento
-        double taxaPorHora = 5.0;
-        return horasEstacionado * taxaPorHora;
-    }
-
-    /**
-     * Calcula o número de horas entre a entrada e a saída.
-     *
-     * @param entrada Hora de entrada.
-     * @param saida   Hora de saída.
-     * @return Número de horas estacionado.
-     */
-    private int calcularHorasEstacionado(LocalDateTime entrada, LocalDateTime saida) {
-        Duration duracao = Duration.between(entrada, saida);
-        return (int) duracao.toHours();
-    }
-
-    
     /**
      * Gera um histórico detalhado para um cliente específico.
      *
      * @param id Identificação do cliente.
      * @return Histórico detalhado do cliente.
      */
-//    public String historicoCliente(String id) {
-//        Cliente busca = new Cliente(id, id);
-//        String historico = "";
-//
-//        for (Cliente cliente : clientes.values()) {
-//            if (busca.equals(cliente)) {
-//                historico = cliente.historicoCliente();
-//            }
-//        }
-//        return historico;
-//    }
+    public String historicoCliente(int id) {
+        Cliente cliente = this.getClienteById(id);
+        if(cliente == null){
+            throw new IllegalArgumentException("Cliente não existente");
+        }else{
+            return cliente.gerarTabelaHistoricoUso();
+        }
+    }
 
 
 
@@ -247,6 +216,52 @@ public class Estacionamento {
             }
         }
         return null;
+    }
+
+    public int gerarProximoIdCliente(){
+        if(this.getClientes().isEmpty()){
+            return 1;
+        }
+        return this.getClientes()
+                    .stream()
+                    .mapToInt(Cliente::getId)
+                    .max().orElse(0) + 1;
+    }
+
+    public String gerarTabelaClientes() {
+        StringBuilder tabela = new StringBuilder();
+        String colunaId = "Id ";
+        String colunaNome = "Nome               ";
+        String colunaQuantVeiculos = "Quant. Veiculos";
+        String colunaTipoCliente = "Tipo Cliente      ";
+        String topoTabela = String.format(" %s | %s | %s | %s ", colunaId, colunaNome, colunaQuantVeiculos, colunaTipoCliente);
+        tabela.append("_".repeat(topoTabela.length() + 2)).append('\n');
+        tabela.append("|").append(topoTabela).append("|").append("\n");
+
+        if(this.getClientes().isEmpty()){
+            String naoExistemClientes = "Não existem clientes cadastrados";
+            String aviso = Utils.centralizarTexto(naoExistemClientes, topoTabela);
+
+            tabela.append("|").append(aviso).append("|").append("\n");
+        }else {
+            for(Cliente cliente:this.getClientes()){
+                String idCliente = String.valueOf(cliente.getId());
+                idCliente += " ".repeat(colunaId.length() - idCliente.length());
+
+                String nomeCliente = String.valueOf(cliente.getNome());
+                nomeCliente += " ".repeat(colunaNome.length() - nomeCliente.length());
+
+                String quantVeiculosCliente = String.valueOf(cliente.getCountVeiculos());
+                quantVeiculosCliente += " ".repeat(colunaQuantVeiculos.length() - quantVeiculosCliente.length());
+
+                String tipoCliente = String.valueOf(cliente.getNomeCategoria());
+                tipoCliente += " ".repeat(colunaTipoCliente.length() - tipoCliente.length());
+
+                tabela.append(String.format("| %s | %s | %s | %s |\n", idCliente, nomeCliente, quantVeiculosCliente, tipoCliente));
+            }
+        }
+        tabela.append("_".repeat(topoTabela.length() + 2)).append('\n');
+        return tabela.toString();
     }
 }
     

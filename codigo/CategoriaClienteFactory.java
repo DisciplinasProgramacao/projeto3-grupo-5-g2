@@ -9,7 +9,7 @@ public class CategoriaClienteFactory {
         return new ArrayList<String>(LISTA_CATEGORIAS);
     }
 
-    public static CategoriaCliente getCategoriaByName(String nomeCategoria){
+    public static ICategoriaCliente getCategoriaByName(String nomeCategoria){
         switch(nomeCategoria){
             case "Turnista": {
                 return new Turnista();
@@ -21,5 +21,9 @@ public class CategoriaClienteFactory {
                 return new Horista();
             }
         }
+    }
+
+    public static ICategoriaCliente getPadrao() {
+        return new Horista();
     }
 }

@@ -13,6 +13,7 @@ public class Vaga {
         char letraVaga = FILAS.charAt(fila);
         String vagaFinal = letraVaga + String.valueOf(numero);
         this.id = vagaFinal;
+        this.disponivel = true;
     }
 
     /**
@@ -22,7 +23,6 @@ public class Vaga {
      */
     public void estacionar() {
         disponivel = false;
-        System.out.println("Veículo estacionado na " + id);
     }
 
     /**
@@ -32,7 +32,6 @@ public class Vaga {
      */
     public void sair() {
         disponivel = true;
-        System.out.println("Veículo saiu da " + id);
     }
 
     /**

@@ -8,7 +8,9 @@ public class Veiculo {
 	private String placa;
 
 	public UsoDeVaga getUltimoUso() {
-		return usos.get(usos.size() - 1);
+		if(this.usos.isEmpty()){
+			return null;
+		} else return usos.get(usos.size() - 1);
 	}
 
 	private List<UsoDeVaga> usos;
@@ -24,8 +26,6 @@ public class Veiculo {
 		return estacionado;
 	}
 
-	private Cliente cliente;
-
 	public Veiculo(String placa, Cliente donoVeiculo) {
 		this.placa = placa;
 		this.donoVeiculo = donoVeiculo;
@@ -33,27 +33,23 @@ public class Veiculo {
 		this.estacionado = false;
 	}
 
-	public Cliente getCliente() {
-		return cliente;
-	}
-
 	public String getPlaca() {
 		return placa;
 	}
 	public void estacionar(Vaga vaga, LocalDateTime entrada) {
 		UsoDeVaga uso = new UsoDeVaga(vaga, entrada);
+		this.estacionado = true;
 		usos.add(uso);
 		vaga.estacionar();
 	}
 
-	public double sair(LocalDateTime saida) {
-		UsoDeVaga uso = encontrarUsoMaisRecente();
-		if (uso != null) {
-			double valorPago = uso.sair(saida, this.donoVeiculo);
-			usos.remove(uso);
-			return valorPago;
+	public double sair(LocalDateTime saida) throws IllegalStateException{
+		if(this.isEstacionado()){
+			UsoDeVaga uso = encontrarUsoMaisRecente();
+			this.estacionado = false;
+			return uso.sair(saida, this.donoVeiculo);
 		}else{
-			return 0.0; // Veículo não estava estacionado nesta vaga.
+			throw new IllegalStateException("Veiculo não está estacionado");
 		}
 	}
 
@@ -61,8 +57,11 @@ public class Veiculo {
 		return usos.stream().min(Comparator.comparing(UsoDeVaga::getEntrada)).orElse(null);
 	}
 
-	public void contratarServico(Servicos servico){
-		this.getUltimoUso().contratarServico(servico);
+	public void contratarServico(Servicos servico) throws IllegalStateException{
+		UsoDeVaga ultimoUso = this.getUltimoUso();
+		if(ultimoUso == null || !ultimoUso.isEmUso()){
+			throw new IllegalStateException("Veículo não está estacionado");
+		}else this.getUltimoUso().contratarServico(servico);
 	}
 
 	public double totalArrecadado() {
@@ -75,5 +74,9 @@ public class Veiculo {
 
 	public int totalDeUsos() {
 		return usos.size();
+	}
+
+	public List<UsoDeVaga> getUsos() {
+		return this.usos;
 	}
 }

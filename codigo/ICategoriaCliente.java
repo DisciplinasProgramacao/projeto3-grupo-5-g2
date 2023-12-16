@@ -1,6 +1,6 @@
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
-public interface CategoriaCliente {
+public interface ICategoriaCliente {
     double sair(UsoDeVaga usoVaga, LocalDateTime horario);
+    String getNome();
 }

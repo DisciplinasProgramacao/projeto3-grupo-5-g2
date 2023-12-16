@@ -18,7 +18,12 @@ public class UsoDeVaga {
 
     private Vaga vaga;
 	private LocalDateTime entrada;
-	private LocalDateTime saida;
+
+    public LocalDateTime getSaida() {
+        return saida;
+    }
+
+    private LocalDateTime saida;
 	private double valorPago;
 	private List<Servicos> servicosContratados;
 
@@ -54,7 +59,10 @@ public class UsoDeVaga {
      * @return O valor a ser pago pelo uso da vaga.
      */
     public double sair(LocalDateTime dataSaida, Cliente cliente) {
-        return cliente.getCategoriaCliente().sair(this, dataSaida);
+        this.getVaga().sair();
+        this.valorPago = cliente.getCategoriaCliente().sair(this, dataSaida);
+        this.saida = dataSaida;
+        return valorPago;
     }
 
     /**
@@ -68,5 +76,46 @@ public class UsoDeVaga {
 
     public void contratarServico(Servicos servico){
         this.servicosContratados.add(servico);
+    }
+
+    public double getValorServicos(LocalDateTime horarioSaida) {
+        long tempoGastoSegundos = Duration.between(this.getEntrada(), horarioSaida).getSeconds();
+        double tempoGastoHoras = ((double) tempoGastoSegundos) / (60 * 60);
+        return this.servicosContratados.stream().filter(servico -> servico.getTempo() < tempoGastoHoras).map(Servicos::getValor).reduce(0d, Double::sum);
+    }
+
+    /**
+     * Calcula o número de horas entre a entrada e a saída.
+     *
+     * @return Número de horas estacionado.
+     * @throws IllegalStateException Erro caso o veículo ainda esteja estacionado
+     */
+    public double getHorasUso(){
+        if(this.isEmUso()){
+            throw new IllegalStateException("Veículo ainda não saiu");
+        }else return this.getHorasUso(this.getSaida());
+    }
+
+    /**
+     * Calcula o número de horas entre a entrada e a saída.
+     *
+     * @param horarioSaida   Hora de saída.
+     * @return Número de horas estacionado.
+     */
+    public double getHorasUso(LocalDateTime horarioSaida) {
+        double tempoGastoHoras = (double) Duration.between(this.getEntrada(), horarioSaida).toHours();
+        return tempoGastoHoras;
+    }
+
+    public List<Servicos> getServicos() {
+        return this.servicosContratados;
+    }
+
+    public double getTotalPago() {
+        return this.valorPago();
+    }
+
+    public boolean isEmUso(){
+        return this.getSaida() == null;
     }
 }

@@ -17,9 +17,14 @@ public class Turnista extends Horista{
     @Override
     public double sair(UsoDeVaga usoVaga, LocalDateTime horarioSaida){
         if(this.turno.verificarDentroTurno(LocalTime.from(horarioSaida))){
-            return 0d;
+            return 0 + usoVaga.getValorServicos(horarioSaida);
         }else{
             return super.sair(usoVaga, horarioSaida);
         }
+    }
+
+    @Override
+    public String getNome(){
+        return String.format("Turnista (%s)", this.turno.getNome());
     }
 }
