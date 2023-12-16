@@ -1,75 +1,82 @@
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Veiculo {
 	private String placa;
-	private List<UsoDeVaga> usos;
-	private LocalDateTime horaEntrada;
-	private Cliente cliente;
 
-	public Veiculo(String placa) {
-		this.placa = placa;
-		this.usos = new ArrayList<>();
+	public UsoDeVaga getUltimoUso() {
+		if(this.usos.isEmpty()){
+			return null;
+		} else return usos.get(usos.size() - 1);
 	}
 
-	public Cliente getCliente() {
-		return cliente;
+	private List<UsoDeVaga> usos;
+
+	public Cliente getDonoVeiculo() {
+		return donoVeiculo;
+	}
+
+	private Cliente donoVeiculo;
+	private boolean estacionado;
+
+	public boolean isEstacionado() {
+		return estacionado;
+	}
+
+	public Veiculo(String placa, Cliente donoVeiculo) {
+		this.placa = placa;
+		this.donoVeiculo = donoVeiculo;
+		this.usos = new ArrayList<>();
+		this.estacionado = false;
 	}
 
 	public String getPlaca() {
 		return placa;
 	}
-
-	public LocalDateTime getHoraEntrada() {
-		return horaEntrada; // Obtenha a hora de entrada do veículo
-	}
-
 	public void estacionar(Vaga vaga, LocalDateTime entrada) {
-		UsoDeVaga uso = new UsoDeVaga(vaga, this, entrada);
+		UsoDeVaga uso = new UsoDeVaga(vaga, entrada);
+		this.estacionado = true;
 		usos.add(uso);
-		vaga.estacionar(this, uso);
+		vaga.estacionar();
 	}
 
-	public double sair(Vaga vaga, LocalDateTime saida) {
-		UsoDeVaga uso = encontrarUso(vaga);
-		if (uso != null) {
-			double valorPago = uso.sair(saida);
-			usos.remove(uso);
-			return valorPago;
+	public double sair(LocalDateTime saida) throws IllegalStateException{
+		if(this.isEstacionado()){
+			UsoDeVaga uso = encontrarUsoMaisRecente();
+			this.estacionado = false;
+			return uso.sair(saida, this.donoVeiculo);
+		}else{
+			throw new IllegalStateException("Veiculo não está estacionado");
 		}
-		return 0.0; // Veículo não estava estacionado nesta vaga.
 	}
 
-	private UsoDeVaga encontrarUso(Vaga vaga) {
-		for (UsoDeVaga uso : usos) {
-			if (Objects.equals(uso.getVaga(), vaga)) {
-				return uso;
-			}
-		}
-		return null;
+	private UsoDeVaga encontrarUsoMaisRecente() {
+		return usos.stream().min(Comparator.comparing(UsoDeVaga::getEntrada)).orElse(null);
+	}
+
+	public void contratarServico(Servicos servico) throws IllegalStateException{
+		UsoDeVaga ultimoUso = this.getUltimoUso();
+		if(ultimoUso == null || !ultimoUso.isEmUso()){
+			throw new IllegalStateException("Veículo não está estacionado");
+		}else this.getUltimoUso().contratarServico(servico);
 	}
 
 	public double totalArrecadado() {
-		double total = 0.0;
-		for (UsoDeVaga uso : usos) {
-			total += uso.getValorPago();
-		}
-		return total;
+		return 0d;
 	}
 
 	public double arrecadadoNoMes(int mes) {
-		double total = 0.0;
-		for (UsoDeVaga uso : usos) {
-			if (uso.getEntrada().getMonthValue() == mes) {
-				total += uso.getValorPago();
-			}
-		}
-		return total;
+		return 0d;
 	}
 
 	public int totalDeUsos() {
 		return usos.size();
+	}
+
+	public List<UsoDeVaga> getUsos() {
+		return this.usos;
 	}
 }
